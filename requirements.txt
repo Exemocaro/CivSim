@@ -1,0 +1,2 @@
+perlin-noise ~= 1.7
+pygame ~= 2.0.1
