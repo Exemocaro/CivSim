@@ -43,19 +43,23 @@ class Nation:
 
         self.representation = "Uncontrolled" if name == "" else f"{self.name}"
 
+    # prints the coords of a list of given tiles controlled by a nation
     def printTiles(self, tiles):
-        values = "Tiles to Develop: "
+        #values = "Tiles to Develop: "
+        values = ""
         if tiles:
             for tile in tiles:
                 values += f"{tile.coords} "
         return values
 
+    # writes all tiles resources on a string and returns it
     def resourcesToString(self):
         values = "Production: "
         for r in self.resources:
             values += f"{r[0].upper()}:{self.resources[r]} "
         return values
 
+    # returns the coords of all controlled tiles by this nation, given the tilesByNation found on Engine.py
     def getControlledTiles(self, tilesByNation):
         coords = []
         for coord in tilesByNation:
@@ -63,16 +67,19 @@ class Nation:
                 coords.append(coord)
         return coords
 
+    # returns all controlled tiles (not their coords) given a list of coords and a list of tiles 
     def getTilesByCoords(self, coords, tiles):
         ctrl = []
         for coord in coords:
-            ctrl.append(tiles[coord[1]][coord[0]]) # first y, then x
+            ctrl.append(tiles[coord[1]][coord[0]]) # first y, then x (but why? i dont remember why i made it like this)
         return ctrl
 
+    # adds resources to a nation's available resources, given a dictionary of resources
     def addResources(self, rs):
         for r in rs:
             self.resources[r] += rs[r]
     
+    # decreases a certain percentage of resources of this nation's stockpile, usually called each turn
     def rotResources(self, percentage):
         for r in self.resources:
             self.resources[r] = round(self.resources[r] * ((100-percentage) / 100))
@@ -91,6 +98,8 @@ class Nation:
         points = round(points / len(controlledTiles), 2)
         return (points, biggest, pop)
 
+    # returns a list of coords with the tiles to be developed for this nation
+    # TODO I should put this function on a "personality" class or something like that
     def getDevTiles(self, tiles, tilesByNation, controlledTiles):
         devTiles = []
         if self.personality == "basic":
@@ -123,20 +132,24 @@ class Nation:
                         if self.find(tilesByNation, n.coords) == 0: # Uncontrolled
                             devTiles.append(n)
                 else:
-                    print(f"{self.name} with id {self.id} has no tiles!!! Something went wrong! Controlled Tiles: {self.getControlledTiles(tilesByNation)}")
+                    print(f"\n{self.name} with id {self.id} has no tiles!!! Something went wrong! Controlled Tiles: {self.getControlledTiles(tilesByNation)}")
                     break
 
                 if randomTile.terrain.name in uncontrollableTerrains: # avoid expanding into these tiles
                     tries += 1
                     continue
                 tries += 1
+        else:
+            print(f"\nIf this nation's personality isn't basic, then what is it?! Name: {self.name}, id: {self.id}")
         return devTiles
 
+    # given the tilesByNation found in Engine.py, checks if all the tiles to be developed are controlled by this nation.
     def checkTilesToDev(self, tilesByNation):
         for tile in self.tilesToDev:
             if self.isNationController(tile, tilesByNation):
                 self.tilesToDev.remove(tile)
 
+    # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation):
         if self.id != 0:
             controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles)

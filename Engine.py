@@ -342,7 +342,7 @@ class Engine:
                     print(f"\nController: {controller.representation}")
                     print(f"Resources: {controller.resourcesToString()}")
                     print(f"Phase: {controller.phase}")
-                    print(f"{controller.printTiles(controller.tilesToDev)}")
+                    print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
                     print(f"Influence: {controller.influence}\n")
 
                     # button logic:
