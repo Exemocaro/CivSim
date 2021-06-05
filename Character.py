@@ -22,17 +22,20 @@ class Character:
 
         Character.globalID += 1
 
+    # returns a character with given stats
     def getCharacter(name, martial, prosperity, darkness):
         if name == "":
             name = "" # to add the nameGen to this
         c = Character(name, martial, prosperity, darkness)
         return c
     
+    # returns a random character
     def getRandomCharacter():
         gender = random.choice(["f", "m"])
         c = Character(nameGen(gender), gender, random.randint(1, 10), random.randint(1, 10), random.randint(1, 10))
         return c
-
+    
+    # returns a string with a character's stats
     def getValues(self):
         if self.name == "":
             return ""

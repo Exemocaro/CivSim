@@ -20,7 +20,7 @@ class Map:
     def __init__(self, sizeX, sizeY, riverNum):
         self.sizeX = sizeX
         self.sizeY = sizeY
-        self.riverNum = riverNum
+        self.riverNum = riverNum # max number of rivers in the map
         self.tiles = [[0 for i in range(self.sizeX)] for j in range(self.sizeY)]
 
         # super ugly code, gotta make this more readable
@@ -248,6 +248,7 @@ class Map:
             for x in range(self.sizeX):
                 self.tiles[y][x].updateValues()
 
+    # river creation
     def genRivers(self):
         print("Generating rivers...")
 

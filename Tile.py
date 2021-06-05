@@ -26,8 +26,9 @@ class Tile:
         self.taxRevenue = 0
         self.foodToGrow = 0
         self.minimumFood = 0
-        self.isHappy = True
+        self.isHappy = True # not used, will work on this later
 
+        # the available resources on a certain turn
         self.availableResources = {
             "food" : 0,
             "wood" : 0,
@@ -36,6 +37,7 @@ class Tile:
             "gold" : 0,
         }
 
+        # resources produced each turn
         self.production = {
             "food" : 0,
             "wood" : 0,
@@ -44,17 +46,21 @@ class Tile:
             "gold" : 0,
         }
 
+    # returns all available resources
     def getLeftovers(self):
         return self.availableResources
 
+    # returns True if the tile has resources to sustain a new level of development
     def canDevelop(self, amount):
         if self.production["wood"] > 2:
             return True
         return False
 
+    # adds new levels of development to this tile
     def addDevelopment(self, amount):
         self.modifiers["dev"] += amount
     
+    # updates self.production with the correct values, it's usually used each turn
     def setProduction(self):
         # adding the resource bonus
         self.wealth = self.baseWealth
@@ -111,11 +117,17 @@ class Tile:
             for r in self.production:
                 self.production[r] = 0
     
+    # comapres this tile with another one, returns True if they are the same
     def compareTile(self, tile):
         if self.id == tile.id:
             return True
         return False
 
+    # returns this tile's neighbours, avoiding the map's boundaries with maxX and maxY
+    # I wanted to use a function that calculates the manhattan distance between 2 tiles and 
+    # returns the absolute value of it, if it's 1 then it's a neighbour, but because of
+    # the limits I don't think I can do it that way...
+    # TODO
     def getNeighbours(self, tiles, maxX, maxY):
         n = []
         if (self.y+1 < maxY and self.x+1 < maxX):#
@@ -144,7 +156,7 @@ class Tile:
             
         return n
 
-    # adding features bonus
+    # adds each features bonus to self.production
     def addFeaturesBonus(self):
         for f in self.terrain.features:
             #state = "nice" if is_nice else "not nice"
@@ -156,24 +168,23 @@ class Tile:
             self.production["iron"] += f.ironBonus #if self.production["iron"] != 0 else 0
             self.production["gold"] += f.goldBonus #if self.production["gold"] != 0 else 0
 
+    # returns a string that contains this tile's resources production
     def productionToString(self):
         values = "Production: "
         for r in self.production:
             values += f"{r[0].upper()}:{self.production[r]} "
         return values
     
-    # made these weird formulas a long time ago, don't ask me how
-    # I came up with them and how they work
+    # made most of these weird formulas a long time ago, don't ask me how I came up with them and how they work xD
     def develop(self):
         # first restock with produced supplies
         for r in self.availableResources:
             self.availableResources[r] = self.production[r]
         
-        # then go to the market to buy, but it will
-        # be implemented later
+        # then go to the market to buy if they have none/negative, but it will be implemented later (?)
 
-        self.foodToGrow = math.ceil(self.population // 1000 * 10) // 10
-        self.minimumFood = math.ceil(self.foodToGrow / 2)
+        self.foodToGrow = math.ceil(self.population // 1000 * 10) // 10 # necessary food to grow the tile's population
+        self.minimumFood = math.ceil(self.foodToGrow / 2) # minimum food for the tile to not lose population
 
         if self.availableResources["food"] >= self.foodToGrow:
             self.availableResources["food"] -= self.foodToGrow
@@ -208,6 +219,8 @@ class Tile:
         #if isHappy:
         self.taxRevenue = round(self.population * TAX_BY_POP)
 
+    # returns the tile's information on a list of strings, 
+    # to be represented on the right panel of the game. Each element will be a new line
     def getInfo(self, nation):
         info = []
         #info.append(f"{self.controller.representation}")

@@ -14,18 +14,19 @@ class Engine:
         #Initialize pygame
         pygame.init()
 
+        # time control things
         self.timer = Timer()
         self.clock = pygame.time.Clock()
 
-        self.UISPACEX = 450
-        self.UISPACEY = 40
-        self.HEIGHT = height
-        self.WIDTH = width
+        self.UISPACEX = 450 # space in the right og the game for the UI
+        self.UISPACEY = 40 # space below the game for the UI, mostly buttons
+        self.HEIGHT = height # window height
+        self.WIDTH = width # window width
         self.IMAGES = {}
         self.font = pygame.font.Font(MAIN_FONT[0], MAIN_FONT[1])
 
-        self.velocity = 0
-        self.currentMap = 2
+        self.velocity = 0 # game velocity
+        self.currentMap = 2 # current way the map is being shown on the screen
         self.allMaps = {
             1 : self.drawMapPolitical, # population
             2 : self.drawMapTerrain, # terrain
@@ -33,28 +34,30 @@ class Engine:
             4 : self.drawMapRivers,
         }
 
+        # the number of tiles in x and y
         self.sizeX = width / tileSize
         self.sizeY = height / tileSize
 
-        self.map = map
-        self.nations = [] # sucks not having pointers...
+        self.map = map # the game map
+        self.nations = [] # each nation of the game
         #self.playerColor = color # will be used later
-        self.tileSize = tileSize
-        self.tilesByNation = {}
-        self.numPlayers = numPlayers
+        self.tileSize = tileSize # the size of each tile
+        self.tilesByNation = {} # stores each tile coords and it's owner's id, if it has no owner then the id will be 0
+        self.numPlayers = numPlayers # the total number of players
 
+        # the alpha value used when mixing colors to show the political map 
         self.politicalAlphaValue = 180
 
-        # the texts which will be shown on the screen
+        # the labels which will be shown on the screen
         self.texts = [
             "Welcome to CivSim!", "top2", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "bottom", "bottom2"
         ]
-        self.textInit = -280 # 175
-        self.textDif = 35
-        self.textX = self.WIDTH + 30
+        self.textInit = -280 # 175 # the top label upper Y, after both special cases (the main text basically)
+        self.textDif = 35 # the height difference between labels on the UI on the right
+        self.textX = self.WIDTH + 30 # the displacement between the game map and the labels on the right
 
-        # Special Cases
-        self.textTopY1 = 90
+        # Special Cases (for the labels, 2 on top and 2 on bottom)
+        self.textTopY1 = 90 # 
         self.textTopY2 = self.textTopY1 + self.textDif
         self.textBottomY1 = self.HEIGHT - self.textTopY1 - self.textDif
         self.textBottomY2 = self.HEIGHT - self.textTopY1
@@ -62,7 +65,7 @@ class Engine:
         # Date text
         self.day = 0
 
-        # buttonSize
+        # buttonSize on x, basically each button's width
         self.bS = 50
 
         # create buttons
@@ -81,6 +84,7 @@ class Engine:
         #Title and icon
         pygame.display.set_caption("CivSim!")
 
+    # blends two colors, used when showing the political map
     def blendColors(self, colorAlpha_, color2_):
         colorAlpha = (colorAlpha_[0] / 255, colorAlpha_[1] / 255, colorAlpha_[2] / 255, colorAlpha_[3] / 255)
         color2 = (color2_[0] / 255, color2_[1] / 255, color2_[2] / 255)
@@ -106,6 +110,7 @@ class Engine:
                     trdP = [x*self.tileSize + (self.tileSize // 2), y*self.tileSize - 1]
                     pygame.draw.polygon(self.screen, BLACK, [fstP, sndP, trdP], 1)
 
+    # draws rivers above the normal terrain map
     def drawMapRivers(self):
         for y in range(len(self.map.tiles)):
             for x in range(len(self.map.tiles[0])):
@@ -121,6 +126,7 @@ class Engine:
                     pygame.draw.polygon(self.screen, BLACK, [fstP, sndP, trdP], 1)
 
     # draws the map on the screen based on political entities
+    # each nation's color is mixed with the terrain color usig the blendColors() function
     # TODO
     def drawMapPolitical(self):
         for y in range(len(self.map.tiles)):
@@ -163,18 +169,13 @@ class Engine:
     def drawMap(self):
         self.allMaps[self.currentMap]()
 
-    # Will use this for later when I need to draw things on the map
-    #def loadImages(self):
-    #    pieces = ['bR', 'bN', 'bB', 'bQ', 'bK','bP','wR', 'wN', 'wB', 'wQ', 'wK',255 'wP']
-    #    for piece in pieces:
-    #        self.IMAGES[piece] = pygame.transform.scale(pygame.image.load("images/" + piece + ".png"), (self.tileSize, self.tileSize))
-
     # shows an individual label on the screen
     def showText(self, font, text, x, y):
         text = font.render(text, True, (0, 0, 0))
         self.screen.blit(text, (x,y))
 
     # shows the labels on the screen
+    # weird function i made, i don't really remember how it works
     def showTexts(self):
         i = 0
         for text in self.texts:
@@ -193,10 +194,12 @@ class Engine:
             self.screen.blit(text, (x, y))
             i += 1
     
+    # draws the button on the bottom right side of the screen
     def drawRightButtons(self):
         for button in self.rightButtons:
             button.draw(self.screen, (0,0,0))
     
+    # returns the controller of a given tile
     def getController(self, tile):
         for nation in self.nations:
             if self.isNationController(nation, tile):
@@ -232,12 +235,14 @@ class Engine:
         else:
             self.velocity += 1
 
+    # generates a random color, mostly used when creating new nations
     def genRandomColor(self):
         c = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         while (c[0] == c[1] or c[0] == c[2] or c[1] == c[2]): # I don't want 3 equal colors
             c = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         return c
 
+    # creates a loop that waits for user input, and returns the tile the user clicks on
     def waitForTileInput(self):
         while True:
             for event in pygame.event.get():
@@ -254,6 +259,7 @@ class Engine:
     def find(self, tileCoords):
         return self.tilesByNation[tileCoords]
 
+    # adds a 
     def addItem(self, tileCoords, controllerId):
         self.tilesByNation[tileCoords] = controllerId
 
@@ -303,6 +309,7 @@ class Engine:
 
         #print(f"Name: {self.nations[0].name} | Representation: {self.nations[0].representation} | Controlled Tiles: {len(self.nations[0].controlledTiles)}")
 
+        # the main game loop
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -318,7 +325,7 @@ class Engine:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     
-                    location = pygame.mouse.get_pos() #(x,y) do rato
+                    location = pygame.mouse.get_pos() # mouses' (x,y)
                     col = location[0] // self.tileSize
                     row = location[1] // self.tileSize
                     #if squareSelected == (row,col) or col >= 8 or row >= 8: #clicked the same square twice
@@ -394,6 +401,10 @@ class Engine:
             if self.velocity != 0:
                 if self.timer.getTimePassed()>=1/(GAME_SPEED * self.velocity):
                     self.day += 1
+                    
+                    #if self.day == 10:
+                    #    print(self.tilesByNation)
+                    
                     #for y in range(len(self.map.tiles)):
                     #    for x in range(len(self.map.tiles[0])):
                     #        if self.map.tiles[y][x].population > 0:

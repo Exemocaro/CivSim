@@ -32,4 +32,5 @@ LAND_FEATURES = [
 
 WATER_FEATURES = [
     Feature("coral reef",          3, 1, 0, 0, [1,0,0,0,0], 0),
+    Feature("deep trench",         3, 1, 0, 0, [1,0,0,0,0], 0),
 ]
