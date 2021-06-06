@@ -5,7 +5,6 @@ from Nation import *
 import pygame
 import random
 #from pygame import mixer # music/sounds
-import math
 
 class Engine:
     
@@ -339,7 +338,9 @@ class Engine:
 
                     # print some nation information on the terminal
                     controller = self.getController(tile)
-                    print(f"\nController: {controller.representation}")
+                    print(f"Clicked coords (x, y): ({col}, {row})")
+                    print(f"Tile (x, y): {tile.coords}")
+                    print(f"Controller: {controller.representation}")
                     print(f"Resources: {controller.resourcesToString()}")
                     print(f"Phase: {controller.phase}")
                     print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")

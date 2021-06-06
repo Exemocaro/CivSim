@@ -248,30 +248,28 @@ class Map:
             for x in range(self.sizeX):
                 self.tiles[y][x].updateValues()
 
-    # river creation
+    # generates the rivers for this map
+    # TODO, some rivers are too close to each other, I want to spread them out more
     def genRivers(self):
         print("Generating rivers...")
 
-        nR = self.riverNum
-        riverHeight = 0.80
+        nR = self.riverNum # number of rivers
+        riverHeight = 0.80 # starting height to search on tiles to make the first rivers, keeps decreasing
         n = 1
         while nR > 0:
-            row = random.choice(self.tiles)
-            tile = random.choice(row)
+            row = random.choice(self.tiles) # chooses a random row of the map
+            tile = random.choice(row) # chooses a random tile from the row
             if tile.terrain.height >= riverHeight and river not in tile.terrain.features:
                 nR -= 1
-                # then create the river
+                # while the river hasn't reach the sea
                 while(tile.terrain.height > 0):
                     n = 1
 
+                    # append the river on this tile
                     if river not in tile.terrain.features:
                         tile.terrain.features.append(river)
-                    for y in range(self.sizeY):
-                        for x in range(self.sizeX):
-                            if self.tiles[y][x].compareTile(tile):
-                                self.tiles[y][x] = tile
-                                tile = self.tiles[y][x]
 
+                    # searches in the tile's neighbours for the one with the smallest height and the seond smallest height 
                     neighbours = tile.getNeighbours(self.tiles, self.sizeX, self.sizeY)
                     smallest = neighbours[0]
                     secondSmallest = neighbours[1]
@@ -299,11 +297,7 @@ class Map:
                     if river in smallest.terrain.features:
                         break
 
-                    for y in range(self.sizeY):
-                        for x in range(self.sizeX):
-                            if self.tiles[y][x].compareTile(smallest):
-                                self.tiles[y][x] = tile
-                                tile = smallest
+                    tile = smallest
             else:
                 riverHeight -= 0.0005
                 #print(f"Height: {round(riverHeight, 2)}, Rivers Generated: {self.riverNum - nR}")
