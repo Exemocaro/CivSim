@@ -1,3 +1,6 @@
+
+# random name generator I made
+
 import random
 
 prefixes = [
@@ -288,6 +291,7 @@ femaleSuffixes = [
 "ias",
 ]
 
+# returns a random name given a gender
 def nameGen(gender = ""):
     if gender == "":
         gender = random.choice(["m", "f"])
@@ -318,7 +322,6 @@ def nameGen(gender = ""):
     else:
         return "Error on gender"
 
-    #n[0] = n[0].upper() # doesn't work in python
     finalName = ""
     for c in n:
         if c == n[0]:
@@ -328,12 +331,12 @@ def nameGen(gender = ""):
 
     return finalName
 
+# generates 300 random names based on the function nameGen(), use this to test the names and see if you like them!
 def generateNames():
-    #std::cout << "Number of male possibilities: " << sizeof(prefixes) * sizeof(stems) * sizeof(maleSuffixes) << std::endl;
-    #std::cout << "Number of female possibilities: " << sizeof(prefixes) * sizeof(stems) * sizeof(femaleSuffixes) << std::endl;
     numNames = 300
-    for i in range(numNames):
+    while numNames > 0:
         print(f"Male Name: {nameGen('m')}.")
         print(f"Female Name: {nameGen('f')}.")
+        numNames -= 1
 
 
