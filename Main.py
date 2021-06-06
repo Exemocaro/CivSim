@@ -3,17 +3,6 @@ from Engine import *
 from Settings import *
 
 def main():
-
-    # Opens nameGen.cpp, compiles it, runs it and then deletes the executable.
-    # I'm just that lazy to remake it in python...
-    
-    #os.system("g++ -o tempNameGen include/nameGen.cpp")
-    #proc = subprocess.Popen(["./tempNameGen.exe"])
-    #proc.wait()
-    #os.system("del /f tempNameGen.exe")
-
-    #generateNames()
-
     mapSize = MAP_SIZES["small"]
     sizeX = mapSize[0]
     sizeY = mapSize[1]

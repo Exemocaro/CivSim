@@ -123,37 +123,29 @@ class Tile:
             return True
         return False
 
-    # returns this tile's neighbours, avoiding the map's boundaries with maxX and maxY
-    # I wanted to use a function that calculates the manhattan distance between 2 tiles and 
-    # returns the absolute value of it, if it's 1 then it's a neighbour, but because of
-    # the limits I don't think I can do it that way...
-    # TODO
+    # returns this tile's neighbours, up, down, left and right
     def getNeighbours(self, tiles, maxX, maxY):
         n = []
-        if (self.y+1 < maxY and self.x+1 < maxX):#
-            n.append(tiles[self.y+1][self.x+1])
-
-        if (self.x+1 < maxX):#
-            n.append(tiles[self.y][self.x+1])
-
-        if (self.y-1 >= 0 and self.x+1 < maxX):#
-            n.append(tiles[self.y-1][self.x+1])
-
-        if (self.y+1 < maxY):#
+        try:
             n.append(tiles[self.y+1][self.x])
+        except IndexError:
+            pass
 
-        if (self.y-1 >= 0):#
+        try:
             n.append(tiles[self.y-1][self.x])
+        except IndexError:
+            pass
 
-        if (self.y+1 < maxY and self.x-1 >= 0):#
-            n.append(tiles[self.y+1][self.x-1])
-
-        if (self.x-1 >= 0):#
+        try:
             n.append(tiles[self.y][self.x-1])
+        except IndexError:
+            pass
 
-        if (self.y-1 >= 0 and self.x-1 >= 0):#
-            n.append(tiles[self.y-1][self.x-1])
-            
+        try:
+            n.append(tiles[self.y][self.x+1])
+        except IndexError:
+            pass
+
         return n
 
     # adds each features bonus to self.production

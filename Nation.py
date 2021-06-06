@@ -3,10 +3,12 @@ from Character import *
 from Terrain import *
 from include.nameGen import *
 from Unit import *
+from Settings import *
+from Personality import *
 import random
 
 class Nation:
-    def __init__(self, id, color, name, leader, modifiers, wars):
+    def __init__(self, id, color, name, leader, modifiers, wars, personality):
         self.id = id
         self.color = color
         self.name = name
@@ -24,20 +26,15 @@ class Nation:
         self.influence = 0
         self.techLevel = 1 # max 10
 
-        self.units = []
+        self.units = [] # probably won't use this
 
-        self.techs = []
+        self.techs = [] # idk if I'll use this
 
-        # should I?
-        #self.ai = ai
         # will add more
-        self.personality = "basic"
+        self.personality = personality
         self.tilesToDev = []
-        self.phase = random.choice(["peacefully-expanding", "aggressively-expanding", "developing"]) # basically what they are doing now
         self.turnsNoExpand = 0
-        self.influenceCostToConquer = 0
-        self.conquerPhaseBonus = 0.1 if self.phase == "aggressively-expanding" else 1
-        self.rotPercentage = 50 - (self.techLevel * 2)
+        self.rotPercentage = BASE_ROT_PERCENTAGE - (self.techLevel * 2)
 
         self.size = 1
 
@@ -99,33 +96,43 @@ class Nation:
         return (points, biggest, pop)
 
     # returns a list of coords with the tiles to be developed for this nation
-    # TODO I should put this function on a "personality" class or something like that
+    # I want each AI to have different strategies and different devTiles
+    # TODO I should put this function on a separate file inside data or something 
+    # and let each personality import it's own getDevTiles() function
     def getDevTiles(self, tiles, tilesByNation, controlledTiles):
         devTiles = []
-        if self.personality == "basic":
+        if self.personality.name == "basic":
+            # weird algorithm i made
             tries = 0
             while not devTiles and (tries < 10 or tries < len(controlledTiles) // 2):
                 if len(controlledTiles) > 0:
-                    randomTile = random.choice(controlledTiles)
+                    randomTile = random.choice(controlledTiles) # first we choose a random controlled tile
 
-                    # since it's "peacefully-expanding", it will just develop a random owned tile
-                    # the more tiles it has, bigger the chance to develop a tile
+                    # avoid expanding into these tiles
+                    if randomTile.terrain.name in uncontrollableTerrains:
+                        tries += 1
+                        continue
+
+                    # now according to the AI's personality, we make it a tile to develop or not
                     prob = random.randint(1,100)
-                    if self.phase == "aggressively-expanding":
+                    if self.personality.phase == "aggressively-expanding":
                         if prob <= 3:
                             devTiles.append(randomTile)
                             break
                         else:
                             tries -= 0.1 # maybe it's too low?
-                    elif self.phase == "peacefully-expanding":
+                    # since it's "peacefully-expanding", it will just develop a random owned tile
+                    # the more tiles it has, bigger the chance to develop a tile
+                    elif self.personality.phase == "peacefully-expanding":
                         if prob <= 20:
                             devTiles.append(randomTile)
                             break
-                    elif self.phase == "developing":
+                    elif self.personality.phase == "developing":
                         if prob <= 80:
                             devTiles.append(randomTile)
                             break
-
+                    
+                    # then we pick it's neighbours
                     itsNeighbours = randomTile.getNeighbours(tiles, len(tiles[0]), len(tiles))
                     #print(itsNeighbours)
                     for n in itsNeighbours:
@@ -135,9 +142,6 @@ class Nation:
                     print(f"\n{self.name} with id {self.id} has no tiles!!! Something went wrong! Controlled Tiles: {self.getControlledTiles(tilesByNation)}")
                     break
 
-                if randomTile.terrain.name in uncontrollableTerrains: # avoid expanding into these tiles
-                    tries += 1
-                    continue
                 tries += 1
         else:
             print(f"\nIf this nation's personality isn't basic, then what is it?! Name: {self.name}, id: {self.id}")
@@ -152,11 +156,8 @@ class Nation:
     # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation):
         if self.id != 0:
-            controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles)
-            temp = self.getInfluenceBiggestAndPopulation(controlledTiles)
-            influenceUnrounded = temp[0]
-            biggestVal = temp[1]
-            totalPopulation = temp[2]
+            controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
+            influenceUnrounded, biggestVal, totalPopulation = self.getInfluenceBiggestAndPopulation(controlledTiles)
             self.influence = round(influenceUnrounded + self.influence, 1)
 
             if self.size != len(controlledTiles):
@@ -180,19 +181,19 @@ class Nation:
                             continue
                     # conquer tile
                     else:
-                        self.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.conquerPhaseBonus
-                        if self.influence > self.influenceCostToConquer:
+                        self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
+                        if self.influence > self.personality.influenceCostToConquer:
                             self.changeTileOwnership(tile, tilesByNation)
-                            self.influence -= self.influenceCostToConquer
+                            self.influence -= self.personality.influenceCostToConquer
                             break
             
             # Phase change
             prob = random.randint(0,100)
             if self.turnsNoExpand > 10:
-                self.phase = "peacefully-expanding"
-            if self.phase != "aggressively-expanding":
+                self.personality.phase = "peacefully-expanding"
+            if self.personality.phase != "aggressively-expanding":
                 if prob < 5:
-                    self.phase = "aggressively-expanding"
+                    self.personality.phase = "aggressively-expanding"
 
             # Make units and buildings
             
@@ -238,7 +239,8 @@ class Nation:
         leader = Character.getRandomCharacter()
         modifiers = []
         wars = []
-        n = Nation(id, color, nationName, leader, modifiers, wars)
+        persona = random.choice(SIMPLE_PERSONALITIES)
+        n = Nation(id, color, nationName, leader, modifiers, wars, persona)
         return n
 
     def genNationName():
@@ -255,4 +257,5 @@ class Nation:
 
         return name
 
-emptyNation = Nation(0,BARBARIANS_COLOR2, "", Character("", "", 0, 0, 0), [], [])
+# The "nation" that represents unclaimed land
+emptyNation = Nation(0,BARBARIANS_COLOR2, "", Character("", "", 0, 0, 0), [], [], random.choice(SIMPLE_PERSONALITIES))

@@ -342,7 +342,7 @@ class Engine:
                     print(f"Tile (x, y): {tile.coords}")
                     print(f"Controller: {controller.representation}")
                     print(f"Resources: {controller.resourcesToString()}")
-                    print(f"Phase: {controller.phase}")
+                    print(f"Phase: {controller.personality.phase}")
                     print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
                     print(f"Influence: {controller.influence}\n")
 

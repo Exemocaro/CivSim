@@ -2,6 +2,9 @@
 BASE_GROWTH_RATE = 0.001
 BASE_DECLINE_RATE = -0.01
 
+# Resources lost each turn
+BASE_ROT_PERCENTAGE = 50
+
 # Tax of each pop
 TAX_BY_POP = 0.01
 

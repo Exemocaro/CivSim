@@ -1,0 +1,21 @@
+This is where I try to implement and discuss ideas on how to make a nation expand/develop.
+
+Each turn, each nation will get some influence points according to:
+-The nation's total non-food resources
+-The leader prosperity
+-Current wars with other nations
+
+The main uses of Influnce are:
+-To "maintain" tiles, each tile has a certain maintenance per turn, based on its value
+-To take tiles away from other nations
+-To develop the nation's tiles and keep them from revolting.
+
+After calculating the new influence value there are 3 possible outcomes:
+-The nation will have an increasing amount of influence
+-The nation won't have either a increasing or decreasing amount of influence, so it stays the same
+-The nation will have a decreasing amount of influence
+
+With an increasing amount of influence, the nation will try to conquer more land.
+With a neutral amount of influence, it will try to develop it's tiles.
+With a decreasing/negative (both) amount of influence, the nation will probably lose territory to revolts/other nations.
+
