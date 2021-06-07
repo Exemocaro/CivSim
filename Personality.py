@@ -14,5 +14,5 @@ class Personality:
         return self.conquerPhaseBonusBase if self.phase == "aggressively-expanding" else 1
 
 SIMPLE_PERSONALITIES = [
-    Personality("basic", random.choice(["peacefully-expanding", "aggressively-expanding", "developing"]), 0, 0.1),
+    Personality("basic", random.choice(["peacefully-expanding", "aggressively-expanding", "developing"]), 1, 0.1), # 0 0.1
 ]

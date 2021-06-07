@@ -5,6 +5,8 @@ Each turn, each nation will get some influence points according to:
 -The leader prosperity
 -Current wars with other nations
 
+The total population of each nation also pays taxes in the form of money, that will give bonuses to this nation.
+
 The main uses of Influnce are:
 -To "maintain" tiles, each tile has a certain maintenance per turn, based on its value
 -To take tiles away from other nations

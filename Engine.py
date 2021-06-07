@@ -234,13 +234,6 @@ class Engine:
         else:
             self.velocity += 1
 
-    # generates a random color, mostly used when creating new nations
-    def genRandomColor(self):
-        c = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        while (c[0] == c[1] or c[0] == c[2] or c[1] == c[2]): # I don't want 3 equal colors
-            c = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        return c
-
     # creates a loop that waits for user input, and returns the tile the user clicks on
     def waitForTileInput(self):
         while True:
@@ -298,8 +291,7 @@ class Engine:
 
             # Create a new nation on the random tile
             id = len(self.nations)
-            color = self.genRandomColor()
-            n = Nation.getNewNation(id, color)
+            n = Nation.getNewNation(id)
             n.changeTileOwnership(tile, self.tilesByNation)
             self.nations.append(n)
             print(f"Created nation with: id:{id} name:{n.name}")
@@ -358,8 +350,7 @@ class Engine:
                     # placeNationButton
                     if self.nationButton.isOver(location):
                         id = len(self.nations)
-                        color = self.genRandomColor()
-                        n = Nation.getNewNation(id, color)
+                        n = Nation.getNewNation(id)
                         
                         lastVel = self.velocity if self.velocity != 0 else lastVel
                         self.velocity = 0

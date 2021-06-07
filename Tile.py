@@ -67,6 +67,9 @@ class Tile:
         self.liferating = self.baseLiferating
         self.production["food"] = BASE_FOOD
         self.production["wood"] = BASE_WOOD
+        self.production["stone"] = BASE_STONE
+        self.production["iron"] = BASE_IRON
+        self.production["gold"] = BASE_GOLD
 
         for r in self.production:
             name = self.resource.name.lower()
@@ -97,7 +100,7 @@ class Tile:
         # feature fixed bonus
         self.addFeaturesBonus()
 
-        # maintenance
+        # development maintenance
         self.production["wood"] -= (2 * self.modifiers["dev"])
 
     # some basic values and error checking

@@ -231,7 +231,6 @@ class Map:
         for y in range(self.sizeY):
             for x in range(self.sizeX):
                 name = f"Number {i}"
-                #ctrl = Nation(0,NON_CONTROLLED_TILE_COLOR , "", "", {}, [], []) # controller
                 ldr = Character.getRandomCharacter() # leader
                 terrain = self.chooseTerrain(x, y)
                 pop = self.choosePopulation(terrain)

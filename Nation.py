@@ -25,6 +25,7 @@ class Nation:
 
         self.influence = 0
         self.techLevel = 1 # max 10
+        self.money = 0 # available money for this nation
 
         self.units = [] # probably won't use this
 
@@ -82,8 +83,8 @@ class Nation:
             self.resources[r] = round(self.resources[r] * ((100-percentage) / 100))
 
     # TODO
-    # basically just the population for now
-    def getInfluenceBiggestAndPopulation(self, controlledTiles):
+    # returns tile
+    def getValueBiggestValueAndTotalPopulation(self, controlledTiles):
         points = 0
         biggest = 0
         pop = 0
@@ -134,9 +135,11 @@ class Nation:
                     
                     # then we pick it's neighbours
                     itsNeighbours = randomTile.getNeighbours(tiles, len(tiles[0]), len(tiles))
-                    #print(itsNeighbours)
                     for n in itsNeighbours:
-                        if self.find(tilesByNation, n.coords) == 0: # Uncontrolled
+                        # it can only expand to uncontrolled tiles
+                        if self.find(tilesByNation, n.coords) == 0 and self.personality.phase != "aggressively-expanding": # Uncontrolled
+                            devTiles.append(n)
+                        else:
                             devTiles.append(n)
                 else:
                     print(f"\n{self.name} with id {self.id} has no tiles!!! Something went wrong! Controlled Tiles: {self.getControlledTiles(tilesByNation)}")
@@ -156,47 +159,60 @@ class Nation:
     # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation):
         if self.id != 0:
+            # basic variables
             controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
-            influenceUnrounded, biggestVal, totalPopulation = self.getInfluenceBiggestAndPopulation(controlledTiles)
-            self.influence = round(influenceUnrounded + self.influence, 1)
+            maintencanceRaw, biggestVal, totalPopulation = self.getValueBiggestValueAndTotalPopulation(controlledTiles)
+            self.influence += BASE_INFLUENCE_PER_TURN
+            self.influence -= maintencanceRaw
+            self.size = len(controlledTiles)
 
-            if self.size != len(controlledTiles):
-                self.size = len(controlledTiles)
-                self.turnsNoExpand = 0
-            else:
-                self.turnsNoExpand += 1
-
+            # fill the tiles to develop
             self.tilesToDev = self.checkTilesToDev(tilesByNation) if self.tilesToDev else self.getDevTiles(tiles, tilesByNation, controlledTiles)
-            
-            if self.tilesToDev:
-                tries = (len(self.tilesToDev) // 2 ) + 1
-                while(tries > 0):
-                    tries -= 1
-                    tile = random.choice(self.tilesToDev)
-                    # develop tile
-                    if self.isNationController(tile, tilesByNation):
-                        if tile.canDevelop(1):
-                            tile.addDevelopment(1)
-                        else:
-                            continue
-                    # conquer tile
-                    else:
-                        self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
-                        if self.influence > self.personality.influenceCostToConquer:
-                            self.changeTileOwnership(tile, tilesByNation)
-                            self.influence -= self.personality.influenceCostToConquer
-                            break
-            
-            # Phase change
-            prob = random.randint(0,100)
-            if self.turnsNoExpand > 10:
-                self.personality.phase = "peacefully-expanding"
-            if self.personality.phase != "aggressively-expanding":
-                if prob < 5:
-                    self.personality.phase = "aggressively-expanding"
 
-            # Make units and buildings
+            # do things in our tilesToDev
+            if self.tilesToDev:
+                pass
+
+            # controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
+            # influenceUnrounded, biggestVal, totalPopulation = self.getValueBiggestValueAndTotalPopulation(controlledTiles)
+            # self.influence = round(influenceUnrounded + self.influence, 1)
+
+            # if self.size != len(controlledTiles):
+            #     self.size = len(controlledTiles)
+            #     self.turnsNoExpand = 0
+            # else:
+            #     self.turnsNoExpand += 1
+
+            # self.tilesToDev = self.checkTilesToDev(tilesByNation) if self.tilesToDev else self.getDevTiles(tiles, tilesByNation, controlledTiles)
             
+            # if self.tilesToDev:
+            #     tries = (len(self.tilesToDev) // 2 ) + 1
+            #     while(tries > 0):
+            #         tries -= 1
+            #         tile = random.choice(self.tilesToDev)
+            #         # develop tile
+            #         if self.isNationController(tile, tilesByNation):
+            #             if tile.canDevelop(1):
+            #                 tile.addDevelopment(1)
+            #             else:
+            #                 continue
+            #         # conquer tile
+            #         else:
+            #             self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
+            #             if self.influence > self.personality.influenceCostToConquer:
+            #                 self.changeTileOwnership(tile, tilesByNation)
+            #                 self.influence -= self.personality.influenceCostToConquer
+            #                 break
+            
+            # # Phase change
+            # prob = random.randint(0,100)
+            # if self.turnsNoExpand > 10:
+            #     self.personality.phase = "peacefully-expanding"
+            # if self.personality.phase != "aggressively-expanding":
+            #     if prob < 5:
+            #         self.personality.phase = "aggressively-expanding"
+
+            # # Make units and buildings
 
             # do things in our tiles
             for tile in controlledTiles:
@@ -205,14 +221,10 @@ class Nation:
                     tile.develop()
                     self.addResources(tile.getLeftovers())
 
+            # Some of the resources will "rot" every turn, so nations don't accumulate infinite resources
+            self.rotResources(self.rotPercentage)
 
-
-
-
-
-            self.rotResources(self.rotPercentage) # Some of the resources will rot
-
-            #print("Next nation\n")
+            # #print("Next nation\n")
 
     # I have to copy these functions to this class because I can't import Engine
     # There surely is a better way to do this
@@ -230,13 +242,22 @@ class Nation:
         tilesByNation = gameState[2]
         return self.find(tilesByNation, tile.coords)
     
+    # conquers a tile for this nation by changing the tilesByNation found in Engine.py
     def changeTileOwnership(self, tile, tilesByNation):
         tilesByNation[tile.coords] = self.id
-        #return (tiles, nations, tilesByNation)
 
-    def getNewNation(id, color):
+    # generates a random color, mostly used when creating new nations
+    def genRandomColor():
+        c = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        while (c[0] == c[1] or c[0] == c[2] or c[1] == c[2]): # I don't want 3 equal colors
+            c = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        return c
+
+    # returns a new random nation
+    def getNewNation(id):
         nationName = Nation.genNationName()
         leader = Character.getRandomCharacter()
+        color = Nation.genRandomColor()
         modifiers = []
         wars = []
         persona = random.choice(SIMPLE_PERSONALITIES)

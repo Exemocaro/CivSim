@@ -5,6 +5,9 @@ BASE_DECLINE_RATE = -0.01
 # Resources lost each turn
 BASE_ROT_PERCENTAGE = 50
 
+# minimum amount of influence each state gets each turn
+BASE_INFLUENCE_PER_TURN = 5
+
 # Tax of each pop
 TAX_BY_POP = 0.01
 
@@ -14,6 +17,9 @@ GAME_SPEED = 5 #faster than 5 and it just doesn't increase more
 # Resource Values
 BASE_FOOD = 1
 BASE_WOOD = 1
+BASE_STONE = 0
+BASE_IRON = 0
+BASE_GOLD = 0
 
 # Population range at the start of a game
 MIN_POP = 1000
