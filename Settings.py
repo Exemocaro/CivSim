@@ -8,6 +8,9 @@ BASE_ROT_PERCENTAGE = 50
 # minimum amount of influence each state gets each turn
 BASE_INFLUENCE_PER_TURN = 5
 
+# starting value for a development level/building on a tile
+BASE_DEV_MAINTENANCE = 0.2 # don't put it lower than 0.1, or it will cause problems
+
 # Tax of each pop
 TAX_BY_POP = 0.01
 

@@ -19,6 +19,7 @@ class Tile:
         self.modifiers = modifiers
         self.coords = (self.x, self.y)
 
+        self.buildings = [] # will be empty for now until I implement buildings
         self.baseWealth = self.wealth
         self.baseLiferating = self.liferating
         self.growthRate = 0 #BASE_GROWTH_RATE + self.liferating * 0.001
@@ -216,8 +217,17 @@ class Tile:
 
     # returns this tile's maintenance value, I'll probably change this later
     def getMaintenance(self):
-        maintenance = self.modifiers["rev"] + self.value # the value plus the revolt level
+        # let's say the maintenance equals to the value + development + buildings + revolt level on it. 
+        # each building/development level doubles the "devMaintenance" starting with a base value
+        devNumber = self.modifiers["dev"] + len(self.buildings)
+        devMaintenance = ((BASE_DEV_MAINTENANCE * 100) ** devNumber) / 100 #  *100 so the number doesn't decrease if it's too low
+        maintenance = self.modifiers["rev"] + self.value + devMaintenance # the value plus the revolt level
         return maintenance
+
+    # returns this tile's influence bonus, which is added each turn to this tile's controller
+    def getInfluence(self):
+        # for now it's just this tile's value
+        return self.value
 
     # returns the tile's information on a list of strings, 
     # to be represented on the right panel of the game. Each element will be a new line

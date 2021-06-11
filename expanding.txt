@@ -1,7 +1,7 @@
 This is where I try to implement and discuss ideas on how to make a nation expand/develop.
 
 Each turn, each nation will get some influence points according to:
--The nation's total non-food resources
+-Each tile's influence bonus, based on available resources
 -The leader prosperity
 -Current wars with other nations
 
