@@ -214,6 +214,11 @@ class Tile:
         #if isHappy:
         self.taxRevenue = round(self.population * TAX_BY_POP)
 
+    # returns this tile's maintenance value, I'll probably change this later
+    def getMaintenance(self):
+        maintenance = self.modifiers["rev"] + self.value # the value plus the revolt level
+        return maintenance
+
     # returns the tile's information on a list of strings, 
     # to be represented on the right panel of the game. Each element will be a new line
     def getInfo(self, nation):

@@ -82,19 +82,26 @@ class Nation:
         for r in self.resources:
             self.resources[r] = round(self.resources[r] * ((100-percentage) / 100))
 
-    # TODO
-    # returns tile
-    def getValueBiggestValueAndTotalPopulation(self, controlledTiles):
-        points = 0
+    # returns total maintenance, the total value, the average value, the biggest population and the average population in our controlled tiles
+    # this was made like this to avoid looping several times, this way we loop only one and get all the data we need
+    def getData(self, controlledTiles):
+        maintenance = 0
+        average = 0
+        totalValue = 0
         biggest = 0
         pop = 0
         for tile in controlledTiles:
-            points += tile.value
+            maintenance += tile.getMaintenance()
+            totalValue += tile.value
             pop += tile.population
             if tile.value > biggest:
                 biggest = tile.value
-        points = round(points / len(controlledTiles), 2)
-        return (points, biggest, pop)
+        average = round(totalValue / len(controlledTiles), 2)
+        return (maintenance, totalValue, average, biggest, pop)
+    
+    # returns our leader's influence bonus, will be added each turn to our nation
+    def getLeaderInfluenceBonus(self):
+        return self.leader.prosperity
 
     # returns a list of coords with the tiles to be developed for this nation
     # I want each AI to have different strategies and different devTiles
@@ -159,19 +166,25 @@ class Nation:
     # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation):
         if self.id != 0:
-            # basic variables
+            # updating and defining basic variables
             controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
-            maintencanceRaw, biggestVal, totalPopulation = self.getValueBiggestValueAndTotalPopulation(controlledTiles)
-            self.influence += BASE_INFLUENCE_PER_TURN
-            self.influence -= maintencanceRaw
+            totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(controlledTiles)
             self.size = len(controlledTiles)
-
+            
             # fill the tiles to develop
+            # will have to update this to include tiles for when nations are at war with each other
             self.tilesToDev = self.checkTilesToDev(tilesByNation) if self.tilesToDev else self.getDevTiles(tiles, tilesByNation, controlledTiles)
+
+            # updating influence
+            self.influence += BASE_INFLUENCE_PER_TURN # basic bonus
+            self.influence += self.getLeaderInfluenceBonus() # leader bonus
+            self.influence -= totalMaintenance # maintenance of our territory
 
             # do things in our tilesToDev
             if self.tilesToDev:
                 pass
+
+            
 
             # controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
             # influenceUnrounded, biggestVal, totalPopulation = self.getValueBiggestValueAndTotalPopulation(controlledTiles)
@@ -204,27 +217,27 @@ class Nation:
             #                 self.influence -= self.personality.influenceCostToConquer
             #                 break
             
-            # # Phase change
-            # prob = random.randint(0,100)
-            # if self.turnsNoExpand > 10:
-            #     self.personality.phase = "peacefully-expanding"
-            # if self.personality.phase != "aggressively-expanding":
-            #     if prob < 5:
-            #         self.personality.phase = "aggressively-expanding"
+            # Phase change
+            prob = random.randint(0,100)
+            if self.turnsNoExpand > 10:
+                self.personality.phase = "peacefully-expanding"
+            if self.personality.phase != "aggressively-expanding":
+                if prob < 5:
+                    self.personality.phase = "aggressively-expanding"
 
-            # # Make units and buildings
+            # Make units and buildings
+            # Empty for now
 
             # do things in our tiles
             for tile in controlledTiles:
                 if tile.population > 0:
+                    # these first 3 are necessary, don't remove them
                     tile.setProduction()
                     tile.develop()
                     self.addResources(tile.getLeftovers())
 
             # Some of the resources will "rot" every turn, so nations don't accumulate infinite resources
             self.rotResources(self.rotPercentage)
-
-            # #print("Next nation\n")
 
     # I have to copy these functions to this class because I can't import Engine
     # There surely is a better way to do this
