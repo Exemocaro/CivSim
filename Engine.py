@@ -337,7 +337,10 @@ class Engine:
                     print(f"Resources: {controller.resourcesToString()}")
                     print(f"Phase: {controller.personality.phase}")
                     print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
-                    print(f"Money: {controller.money}")
+                    print(f"Number of Buildings: {controller.numBuildings}")
+                    print(f"Technology level: {controller.techLevel}")
+                    print(f"Actions left: {controller.actions}")
+                    print(f"Money: {controller.money} ({controller.money - controller.lastMoney})")
                     print(f"Influence: {controller.influence} ({controller.influence - controller.lastInfluence})\n")
 
                     # button logic:

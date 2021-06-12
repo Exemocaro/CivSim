@@ -2,9 +2,10 @@ from Resource import *
 from Character import *
 from Terrain import *
 from include.nameGen import *
-from Unit import *
+#from Unit import *
 from Settings import *
 from Personality import *
+from Building import *
 import random
 
 class Nation:
@@ -26,7 +27,12 @@ class Nation:
         self.lastInfluence = 0 # to track if the ifluence is growing or not
         self.influence = 0
         self.techLevel = 1 # max 11
+        self.lastMoney = 0
         self.money = 0 # available money for this nation
+
+        self.actions = 0 # number of things this nation can do per turn
+
+        self.numBuildings = 0 # to make it easier to print on the console
 
         #self.units = [] # probably won't use this
 
@@ -113,13 +119,14 @@ class Nation:
         return self.leader.prosperity
 
     # develops all our inhabitated tiles and updates our resources
-    def developTiles(self, controlledTiles):
-        for tile in controlledTiles:
-            if tile.population > 0: # develop only inhabitated tiles
-                # these 3 are necessary, don't remove them
-                tile.setProduction()
-                tile.develop()
-                self.addResources(tile.getLeftovers())
+    def developTiles(self, controlledTiles, isInfluenceGrowing):
+        if isInfluenceGrowing:
+            for tile in controlledTiles:
+                if tile.population > 0: # develop only inhabitated tiles
+                    # these 3 are necessary, don't remove them
+                    tile.setProduction()
+                    tile.develop()
+                    self.addResources(tile.getLeftovers())
     
     # see if we can change our personality's phase and other stats
     def updatePersonality(self):
@@ -143,9 +150,11 @@ class Nation:
 
     # udpates the current amount of money this nation has
     def updateMoney(self, totalPopulation, buildingMaintenance):
+        self.lastMoney = self.money
         self.money += totalPopulation * TAX_BY_POP
         self.money -= buildingMaintenance
         self.money = round(self.money, 3)
+        return True if self.money < self.lastMoney > 0 else False # returns if our money is growing or not
 
     # updates the current amount of influence this nation has
     def updateInfluence(self, buildingMaintenance, tileBonus):
@@ -183,12 +192,20 @@ class Nation:
         while numBuildings >= NUM_BUILDINGS_TO_INCREASE_TECH:
             numBuildings -= NUM_BUILDINGS_TO_INCREASE_TECH
             newTechLevel += 1
-        self.techLevel = newTechLevel
+        self.techLevel = newTechLevel if newTechLevel <= 11 else 11
 
     # conquers a tile for this nation; consumes influence
     def conquerTile(self, tile, tilesByNation):
         self.changeTileOwnership(tile, tilesByNation)
         self.influence -= self.personality.influenceCostToConquer
+
+    def updateActions(self):
+        if self.size >= SIZE_MAX_ACTIONS:
+            self.actions = MAX_ACTIONS
+        elif self.size >= SIZE_MEDIUM_ACTIONS:
+            self.actions = MEDIUM_ACTIONS
+        else:
+            self.actions = MIN_ACTIONS
 
     # adds development to the specified tile; consumes influence
     def addDevToTile(self, devValue, tile):
@@ -201,26 +218,67 @@ class Nation:
         numOfTiles = len(self.tilesToDev)
         shuffledTiles = random.sample(self.tilesToDev, numOfTiles) # to add some RNG (idk if this is the right expression)
 
-        for i in range(numOfTiles):
-            tile = shuffledTiles[i]
-            # either develop tile if it's controlled by us
-            if self.isNationController(tile, tilesByNation):
-                devToAdd = 1 # 1 level of development, may change later according to AI personality
-                if tile.canDevelop(devToAdd) and self.influence > self.personality.influenceCostToDev: # 1 level of development
-                    self.addDevToTile(devToAdd, tile)
-                    break
-            # TODO
-            # or conquer an unoccupied tile (other nations tiles will be implemented later)
-            else:
-                #self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
-                if self.influence > self.personality.influenceCostToConquer:
-                    self.conquerTile(tile, tilesByNation)
-                    break
-            continue # if it ends up not having influence or resources
+        if isInfluenceGrowing:
+            for i in range(numOfTiles):
+                tile = shuffledTiles[i]
+                # either develop tile if it's controlled by us
+                if self.isNationController(tile, tilesByNation):
+                    devToAdd = 1 # 1 level of development, may change later according to AI personality
+                    if tile.canDevelop(devToAdd) and self.influence > self.personality.influenceCostToDev: # 1 level of development
+                        self.addDevToTile(devToAdd, tile)
+                        self.actions -= 1
+                        break
+                # TODO
+                # or conquer an unoccupied tile (other nations tiles will be implemented later)
+                else:
+                    #self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
+                    if self.influence > self.personality.influenceCostToConquer:
+                        self.conquerTile(tile, tilesByNation)
+                        self.actions -= 1
+                        break
+                continue # if it ends up not having influence or resources
+    
+    # returns a building depending on the code passed and the available money and influence this nation has
+    # returns None if it didn't find any building
+    def chooseBuilding(self, code):
+        if code == "i": # influence building
+            if self.money >= BASE_BUILDING_MONEY_COST:
+                return random.choice(L1_INFLUENCE_BUILDINGS)
+        elif code == "m": # money building
+            if self.influence >= BASE_BUILDING_INFLUENCE_COST:
+                return random.choice(L1_MONEY_BUILDINGS)
+        return None # if we end up not choosing any building
 
     # will construct buildings in our tiles
-    def buildThings(self, controlledTiles):
-        pass
+    def buildThings(self, controlledTiles, isMoneyGrowing, isInfluenceGrowing):
+        
+        if len(controlledTiles) > 0:
+            # so we don't repeat code
+            def chooseTile():
+                tileToBuild = random.choice(controlledTiles)
+                while tileToBuild.population <= 0:
+                    tileToBuild = random.choice(controlledTiles)
+                return tileToBuild
+            
+            tileToBuild = chooseTile()
+            buildingInfluence = None
+            buildingMoney = None
+            if isMoneyGrowing: # we can spend on influence buildings
+                buildingInfluence = self.chooseBuilding("i")
+            if isInfluenceGrowing: # we can spend on money buildings
+                buildingMoney = self.chooseBuilding("m")
+
+            if buildingMoney is not None:
+                tileToBuild.buildings.append(buildingMoney)
+                self.influence -= buildingMoney.influenceCost
+                #self.money -= buildingInfluence.moneyCost
+                self.actions -= 1
+                
+            if buildingInfluence is not None:
+                tileToBuild.buildings.append(buildingInfluence)
+                self.money -= buildingInfluence.moneyCost
+                #self.influence -= buildingMoney.influenceCost
+                self.actions -= 1
 
     # TODO
     # returns a list of tiles to be developed for this nation (NOT their coords)
@@ -290,30 +348,39 @@ class Nation:
             controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
             numBuildings, totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(controlledTiles)
             self.updateSize(controlledTiles)
-            self.updateMoney(totalPopulation, totalMaintenance[0])
+            self.updateActions()
+            self.numBuildings = numBuildings
+            isMoneyGrowing = self.updateMoney(totalPopulation, totalMaintenance[0])
             isInfluenceGrowing = self.updateInfluence(totalMaintenance[1], totalInfluenceBonus) # updating our influence and checking if it's growing or not
 
-            # update and develop our tilesToDev
-            if self.tilesToDev:
-                self.devTiles(controlledTiles, tilesByNation, isInfluenceGrowing) # consumes influence
-                self.tilesToDev = self.checkTilesToDev(tilesByNation)
-            else:
-                self.tilesToDev = self.getDevTiles(tiles, tilesByNation, controlledTiles)
-            
-            # Phase change
-            self.updatePersonality()
+            # ------ THINGS THAT CONSUME ACTION POINTS
 
-            # TODO
-            # Make ~~units~~ and buildings
-            self.buildThings(controlledTiles) # empty for now
+            beforeActions = self.actions
+            didSomething = True
+            while self.actions > 0 and didSomething:
+                # update and develop our tilesToDev
+                if self.tilesToDev:
+                    self.devTiles(controlledTiles, tilesByNation, isInfluenceGrowing) # consumes influence
+                    self.tilesToDev = self.checkTilesToDev(tilesByNation)
+                else:
+                    self.tilesToDev = self.getDevTiles(tiles, tilesByNation, controlledTiles)
+
+                # Try to build something on our tiles
+                self.buildThings(controlledTiles, isMoneyGrowing, isInfluenceGrowing)
+
+                didSomething = True if self.actions != beforeActions else False
+
+            # ------ AND THAT DON'T CONUSME ACTION POINTS 
 
             # develop our Tiles
-            self.developTiles(controlledTiles)
+            self.developTiles(controlledTiles, isInfluenceGrowing)
+
+            # personality update, includes changing the phase and other stats realted to it
+            self.updatePersonality()
 
             # Some of the resources will "rot" every turn, so nations don't accumulate infinite resources
             self.rotResources(self.rotPercentage)
 
-            # TODO
             # update our leader stats/age
             self.updateLeader()
 

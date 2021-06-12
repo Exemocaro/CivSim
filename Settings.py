@@ -12,19 +12,28 @@ BASE_INFLUENCE_PER_TURN = 5
 BASE_DEV_MAINTENANCE = 0.2 # starting value for a development level, must be above 0.01
 BASE_DEV_COST = 1 # cost to develop a tile in influence
 BASE_CONQUER_COST = 1.5
-BASE_BUILDING_MAINTENANCE_INFLUENCE = 0.5 # maintenance cost of a building that produces money
-BASE_INFLUENCE_BUILDING_BONUS = 1
+BASE_BUILDING_MAINTENANCE_INFLUENCE = 0.2 # maintenance cost of a building that produces money
+BASE_INFLUENCE_BUILDING_BONUS = 0.6 # the bonus a building gives when it produces influence
+BASE_BUILDING_INFLUENCE_COST = 1
 
 # related with money expenditure
-BASE_BUILDING_MAINTENANCE_MONEY = 15 # maintenance cost of a building that produces influence
-BASE_MONEY_BUILDING_BONUS = 30 # the bonus a building gives when it produces money
+BASE_BUILDING_MAINTENANCE_MONEY = 5 # maintenance cost of a building that produces influence
+BASE_MONEY_BUILDING_BONUS = 15 # the bonus a building gives when it produces money
+BASE_BUILDING_MONEY_COST = 50
 
 # tech realted variables
-# TODO
 NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
 
 # Tax of each pop
 TAX_BY_POP = 0.001
+
+# max number of actions each nation can make in a turn (includes building, developing and conquering tiles)
+MAX_ACTIONS = 7
+MEDIUM_ACTIONS = 5
+MIN_ACTIONS = 3 # don't mess with this value
+SIZE_MAX_ACTIONS = 40 # number of tiles a nation needs to have to reach max number of actions
+SIZE_MEDIUM_ACTIONS = 20 # self-explanatory
+
 
 # the speed of each turn
 GAME_SPEED = 5 #faster than 5 and it just doesn't increase more

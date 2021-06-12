@@ -16,7 +16,7 @@ class Character:
         self.prosperity = prosperity # increases nation bonuses on money and influence
         self.vitality = vitality # the time this character will live
 
-        self.wealth = 0
+        self.wealth = 0 # probably won't be used? idk, maybe in rebellions
 
         self.title = "King" if self.gender == "m" else "Queen"
         self.representation = "" if name == "" else f"{self.title} {self.name}"
@@ -72,13 +72,7 @@ class Character:
 
     def getInfo(self):
         info = []
-        #info.append(f"ID: {self.id}")
-        #info.append(f"Name: {self.name}")
-        #info.append(f"Martial: {self.martial}")
-        #info.append(f"Prosperity: {self.prosperity}")
-        #info.append(f"Vitality: {self.vitality}")
         info.append(self.getValues())
-        #info.append(f"Wealth: {self.wealth}")
         return info 
 
     def printInfo(self):

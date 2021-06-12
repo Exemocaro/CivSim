@@ -23,12 +23,14 @@ class Building:
     def getMaintenance(self):
         return (self.moneyMaintenance, self.influenceMaintenance)
 
-# some simple builings
-MONEY_BUILDINGS = [
-    Building("marketplace", 1, 0, 1, -BASE_MONEY_BUILDING_BONUS, BASE_BUILDING_MAINTENANCE_INFLUENCE, [0,0,0,0,0], 0),
-    #Building("marketplace", 2, 50, 0, BASE_BUILDING_MAINTENANCE_INFLUENCE, [0,0,0,0,0], 0),
+# buildings will be distributed in levels, lvl1 buildings will cost the base amount, lvl 2 twice that amount, and so on
+# I made it like this to avoid looping through all the buildings to find an affordable one
+# buildings that produce money and cost influence
+L1_MONEY_BUILDINGS = [
+    Building("marketplace", 1, 0, BASE_BUILDING_INFLUENCE_COST, -BASE_MONEY_BUILDING_BONUS, BASE_BUILDING_MAINTENANCE_INFLUENCE, [0,0,0,0,0], 0),
 ]
 
-INFLUENCE_BUILDINGS = [
-    Building("academy", 1, 50, 0, BASE_BUILDING_MAINTENANCE_MONEY, -BASE_INFLUENCE_BUILDING_BONUS, [0,0,0,0,0], 0), # basically a school
+# buildings that produce influence and cost money
+L1_INFLUENCE_BUILDINGS = [
+    Building("academy", 1, BASE_BUILDING_MONEY_COST, 0, BASE_BUILDING_MAINTENANCE_MONEY, -BASE_INFLUENCE_BUILDING_BONUS, [0,0,0,0,0], 0), # basically a school
 ]
