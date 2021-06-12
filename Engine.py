@@ -338,7 +338,7 @@ class Engine:
                     print(f"Phase: {controller.personality.phase}")
                     print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
                     print(f"Money: {controller.money}")
-                    print(f"Influence: {controller.influence}\n")
+                    print(f"Influence: {controller.influence} ({controller.influence - controller.lastInfluence})\n")
 
                     # button logic:
                     # velocityButton

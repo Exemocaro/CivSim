@@ -1,6 +1,7 @@
 from Settings import *
 from Terrain import *
 from Feature import *
+from Building import *
 import math
 #from Resource import *
 
@@ -217,14 +218,23 @@ class Tile:
 
     # returns this tile's maintenance value, I'll probably change this later
     def getMaintenance(self):
-        maintenance = 0
+        buildingMaint = [0,0]
+        maintenance = [0,0]
         if self.population > 0:
             # let's say the maintenance equals to the value + development + buildings + revolt level on it. 
             # each building/development level doubles the "devMaintenance" starting with a base value
-            devNumber = self.modifiers["dev"] + len(self.buildings)
+            for building in self.buildings:
+                buildingMaint[0] += building.getMaintenance()[0]
+                buildingMaint[1] += building.getMaintenance()[1]
+
+            devNumber = self.modifiers["dev"]
             devMaintenance = ((BASE_DEV_MAINTENANCE * 100) ** devNumber) / 100 #  *100 so the number doesn't decrease if it's too low
-            maintenance = self.modifiers["rev"] + self.value + devMaintenance # the value plus the revolt level
+            maintenance[1] = self.modifiers["rev"] + self.value + devMaintenance + buildingMaint[1] # the value, revolt level, development maintenance and building maintenance
+            maintenance[0] = buildingMaint[0]
         return maintenance
+
+    def getNumBuildings(self):
+        return len(self.buildings)
 
     # returns this tile's influence bonus, which is added each turn to this tile's controller
     def getInfluence(self):

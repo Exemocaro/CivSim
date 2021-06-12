@@ -87,21 +87,26 @@ class Nation:
     def getData(self, controlledTiles):
         techBonus = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3.0, 3.5, 4.0] # should it be on Settings.py?
         totalInfluence = 0
-        maintenance = 0
+        maintenance = [0,0]
         average = 0
         totalValue = 0
         biggest = 0
         pop = 0
+        numBuildings = 0
         for tile in controlledTiles:
+            tileMaintenance = tile.getMaintenance() # temp variable
+
+            numBuildings += tile.getNumBuildings()
             totalInfluence += tile.getInfluence()
-            maintenance += tile.getMaintenance()
+            maintenance[0] += tileMaintenance[0]
+            maintenance[1] += tileMaintenance[1]
             totalValue += tile.value
             pop += tile.population
             if tile.value > biggest:
                 biggest = tile.value
         average = 0 if len(controlledTiles) == 0 else round(totalValue / len(controlledTiles), 2)
         totalInfluence *= techBonus[self.techLevel - 1] # the higher the tech, the better the bonus on influence gain
-        return (totalInfluence, maintenance, totalValue, average, biggest, pop)
+        return (numBuildings, totalInfluence, maintenance, totalValue, average, biggest, pop)
     
     # returns our leader's influence bonus, will be added each turn to our nation
     def getLeaderInfluenceBonus(self):
@@ -137,8 +142,48 @@ class Nation:
             self.turnsNoExpand += 1
 
     # udpates the current amount of money this nation has
-    def updateMoney(self, totalPopulation):
-        self.money += round(totalPopulation * TAX_BY_POP, 3)
+    def updateMoney(self, totalPopulation, buildingMaintenance):
+        self.money += totalPopulation * TAX_BY_POP
+        self.money -= buildingMaintenance
+        self.money = round(self.money, 3)
+
+    # updates the current amount of influence this nation has
+    def updateInfluence(self, buildingMaintenance, tileBonus):
+        self.lastInfluence = self.influence
+        self.influence += BASE_INFLUENCE_PER_TURN # basic bonus
+        self.influence += self.getLeaderInfluenceBonus() # leader bonus
+        self.influence += tileBonus
+        self.influence -= buildingMaintenance # maintenance of our territory
+        self.influence = round(self.influence, 2)
+        return True if self.influence - self.lastInfluence > 0 else False # returns if the influence is growing or not
+
+    # updates our current leader with either new stats or with death :( will also replace it in that case
+    def updateLeader(self):
+        self.leader.age += 1
+
+        # starting at 20, the probability of dying will increase given the leader's vitality
+        probabilityOfDying = 1 # out of 100, base starting value for each year
+        if self.leader.age > 50:
+            probabilityOfDying = 3
+        elif self.leader.age > 60:
+            probabilityOfDying = 5
+        elif self.leader.age > 70:
+            probabilityOfDying = 10
+
+        if (self.leader.vitality + 2) * 10 > self.leader.age:
+            probabilityOfDying += 5
+        
+        r = random.randint(1,100)
+        if r <= probabilityOfDying: # the leader died :(
+            self.leader = Character.getSuccessor(self.leader)
+
+    # updates our current tech level according to the total number of buildings in our nation
+    def updateTech(self, numBuildings):
+        newTechLevel = 1 # 1 it's the minimum value
+        while numBuildings >= NUM_BUILDINGS_TO_INCREASE_TECH:
+            numBuildings -= NUM_BUILDINGS_TO_INCREASE_TECH
+            newTechLevel += 1
+        self.techLevel = newTechLevel
 
     # conquers a tile for this nation; consumes influence
     def conquerTile(self, tile, tilesByNation):
@@ -219,10 +264,10 @@ class Nation:
                     itsNeighbours = randomTile.getNeighbours(tiles, len(tiles[0]), len(tiles))
                     for n in itsNeighbours:
                         # it can only expand to uncontrolled tiles
-                        if self.find(tilesByNation, n.coords) == 0 and self.personality.phase != "aggressively-expanding": # Uncontrolled
+                        if self.find(tilesByNation, n.coords) == 0: #and self.personality.phase != "aggressively-expanding": # Uncontrolled
                             devTiles.append(n)
-                        else:
-                            devTiles.append(n)
+                        #else:
+                        #    devTiles.append(n)
                 else:
                     print(f"\n{self.name} with id {self.id} has no tiles!!! Something went wrong! Controlled Tiles: {self.getControlledTiles(tilesByNation)}")
                     break
@@ -243,16 +288,10 @@ class Nation:
         if self.id != 0:
             # updating and defining basic variables
             controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
-            totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(controlledTiles)
+            numBuildings, totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(controlledTiles)
             self.updateSize(controlledTiles)
-            self.updateMoney(totalPopulation)
-
-            # updating influence
-            self.lastInfluence = self.influence
-            self.influence += BASE_INFLUENCE_PER_TURN # basic bonus
-            self.influence += self.getLeaderInfluenceBonus() # leader bonus
-            self.influence -= totalMaintenance # maintenance of our territory
-            isInfluenceGrowing = True if self.influence - self.lastInfluence > 0 else False
+            self.updateMoney(totalPopulation, totalMaintenance[0])
+            isInfluenceGrowing = self.updateInfluence(totalMaintenance[1], totalInfluenceBonus) # updating our influence and checking if it's growing or not
 
             # update and develop our tilesToDev
             if self.tilesToDev:
@@ -264,6 +303,7 @@ class Nation:
             # Phase change
             self.updatePersonality()
 
+            # TODO
             # Make ~~units~~ and buildings
             self.buildThings(controlledTiles) # empty for now
 
@@ -272,6 +312,13 @@ class Nation:
 
             # Some of the resources will "rot" every turn, so nations don't accumulate infinite resources
             self.rotResources(self.rotPercentage)
+
+            # TODO
+            # update our leader stats/age
+            self.updateLeader()
+
+            # update our tech level
+            self.updateTech(numBuildings)
 
     # I have to copy these functions to this class because I can't import Engine
     # There surely is a better way to do this
@@ -326,4 +373,4 @@ class Nation:
         return name
 
 # The "nation" that represents unclaimed land
-emptyNation = Nation(0,BARBARIANS_COLOR2, "", Character("", "", 0, 0, 0), [], [], random.choice(SIMPLE_PERSONALITIES))
+emptyNation = Nation(0,BARBARIANS_COLOR2, "", Character("", 0, "", 0, 0, 0), [], [], random.choice(SIMPLE_PERSONALITIES))

@@ -9,9 +9,19 @@ BASE_ROT_PERCENTAGE = 50
 BASE_INFLUENCE_PER_TURN = 5
 
 # related with influence expenditure
-BASE_DEV_MAINTENANCE = 0.2 # starting value for a development level/building on a tile, must be above 0.01
+BASE_DEV_MAINTENANCE = 0.2 # starting value for a development level, must be above 0.01
 BASE_DEV_COST = 1 # cost to develop a tile in influence
 BASE_CONQUER_COST = 1.5
+BASE_BUILDING_MAINTENANCE_INFLUENCE = 0.5 # maintenance cost of a building that produces money
+BASE_INFLUENCE_BUILDING_BONUS = 1
+
+# related with money expenditure
+BASE_BUILDING_MAINTENANCE_MONEY = 15 # maintenance cost of a building that produces influence
+BASE_MONEY_BUILDING_BONUS = 30 # the bonus a building gives when it produces money
+
+# tech realted variables
+# TODO
+NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
 
 # Tax of each pop
 TAX_BY_POP = 0.001
