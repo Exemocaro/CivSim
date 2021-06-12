@@ -63,7 +63,7 @@ class Engine:
         self.textBottomY2 = self.HEIGHT - self.textTopY1
 
         # Date text
-        self.day = 0
+        self.turn = 0
 
         # buttonSize on x, basically each button's width
         self.bS = 50
@@ -397,9 +397,9 @@ class Engine:
             # 1 in-game day, may change it
             if self.velocity != 0:
                 if self.timer.getTimePassed()>=1/(GAME_SPEED * self.velocity):
-                    self.day += 1
+                    self.turn += 1
                     
-                    #if self.day == 10:
+                    #if self.turn == 10:
                     #    print(self.tilesByNation)
                     
                     #for y in range(len(self.map.tiles)):
@@ -449,7 +449,7 @@ class Engine:
 
             self.showTexts()
             # date text
-            self.showText(pygame.font.Font(SMALL_FONT[0], SMALL_FONT[1]), f"Day {self.day}", self.WIDTH - 150, self.HEIGHT + 7)
+            self.showText(pygame.font.Font(SMALL_FONT[0], SMALL_FONT[1]), f"Turn {self.turn}", self.WIDTH - 150, self.HEIGHT + 7)
 
             #update the display
             #pygame.display.update()

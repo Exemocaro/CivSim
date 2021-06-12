@@ -17,8 +17,8 @@ BASE_INFLUENCE_BUILDING_BONUS = 0.6 # the bonus a building gives when it produce
 BASE_BUILDING_INFLUENCE_COST = 1
 
 # related with money expenditure
-BASE_BUILDING_MAINTENANCE_MONEY = 5 # maintenance cost of a building that produces influence
-BASE_MONEY_BUILDING_BONUS = 15 # the bonus a building gives when it produces money
+BASE_BUILDING_MAINTENANCE_MONEY = 60 # maintenance cost of a building that produces influence
+BASE_MONEY_BUILDING_BONUS = 50 # the bonus a building gives when it produces money
 BASE_BUILDING_MONEY_COST = 50
 
 # tech realted variables
@@ -34,6 +34,8 @@ MIN_ACTIONS = 3 # don't mess with this value
 SIZE_MAX_ACTIONS = 40 # number of tiles a nation needs to have to reach max number of actions
 SIZE_MEDIUM_ACTIONS = 20 # self-explanatory
 
+# max number of buildings a tile can have
+MAX_BUILDINGS_PER_TILE = 3
 
 # the speed of each turn
 GAME_SPEED = 5 #faster than 5 and it just doesn't increase more

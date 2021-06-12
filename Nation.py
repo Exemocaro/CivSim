@@ -255,30 +255,30 @@ class Nation:
         if len(controlledTiles) > 0:
             # so we don't repeat code
             def chooseTile():
-                tileToBuild = random.choice(controlledTiles)
-                while tileToBuild.population <= 0:
-                    tileToBuild = random.choice(controlledTiles)
-                return tileToBuild
+                shuffledTiles = random.sample(controlledTiles, self.size)
+                i = 0
+                tileToBuild = random.choice(shuffledTiles)
+                while i < self.size and tileToBuild.population <= 0 and len(tileToBuild.buildings) == MAX_BUILDINGS_PER_TILE:
+                    tileToBuild = shuffledTiles[i]
+                    i += 1
+                return tileToBuild if i < self.size else None
             
             tileToBuild = chooseTile()
-            buildingInfluence = None
-            buildingMoney = None
+            buildings = []
             if isMoneyGrowing: # we can spend on influence buildings
-                buildingInfluence = self.chooseBuilding("i")
-            if isInfluenceGrowing: # we can spend on money buildings
-                buildingMoney = self.chooseBuilding("m")
+                buildings.append(self.chooseBuilding("i"))
+            if not isInfluenceGrowing: # prioritize influence above everything
+                buildings.append(self.chooseBuilding("i"))
+            elif isInfluenceGrowing: # we can spend on money buildings
+                buildings.append(self.chooseBuilding("m"))
 
-            if buildingMoney is not None:
-                tileToBuild.buildings.append(buildingMoney)
-                self.influence -= buildingMoney.influenceCost
-                #self.money -= buildingInfluence.moneyCost
-                self.actions -= 1
-                
-            if buildingInfluence is not None:
-                tileToBuild.buildings.append(buildingInfluence)
-                self.money -= buildingInfluence.moneyCost
-                #self.influence -= buildingMoney.influenceCost
-                self.actions -= 1
+            if tileToBuild is not None:
+                for building in buildings:
+                    if building is not None:
+                        tileToBuild.buildings.append(building)
+                        self.influence -= building.influenceCost
+                        self.money -= building.moneyCost
+                        self.actions -= 1
 
     # TODO
     # returns a list of tiles to be developed for this nation (NOT their coords)
