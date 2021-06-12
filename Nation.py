@@ -23,15 +23,15 @@ class Nation:
         self.modifiers = modifiers
         self.wars = wars
 
+        self.lastInfluence = 0 # to track if the ifluence is growing or not
         self.influence = 0
         self.techLevel = 1 # max 11
         self.money = 0 # available money for this nation
 
-        self.units = [] # probably won't use this
+        #self.units = [] # probably won't use this
 
         self.techs = [] # idk if I'll use this
 
-        # will add more
         self.personality = personality
         self.tilesToDev = []
         self.turnsNoExpand = 0
@@ -99,7 +99,7 @@ class Nation:
             pop += tile.population
             if tile.value > biggest:
                 biggest = tile.value
-        average = round(totalValue / len(controlledTiles), 2)
+        average = 0 if len(controlledTiles) == 0 else round(totalValue / len(controlledTiles), 2)
         totalInfluence *= techBonus[self.techLevel - 1] # the higher the tech, the better the bonus on influence gain
         return (totalInfluence, maintenance, totalValue, average, biggest, pop)
     
@@ -125,7 +125,8 @@ class Nation:
             if prob < 5:
                 self.personality.phase = "aggressively-expanding"
 
-        self.personality.updateConquerPhaseBonus()
+        self.personality.updateInfluenceToConquer()
+        self.personality.updateInfluenceToDev()
 
     # updates our size and the number of turns without changing our size
     def updateSize(self, controlledTiles):
@@ -135,12 +136,49 @@ class Nation:
         else:
             self.turnsNoExpand += 1
 
+    # udpates the current amount of money this nation has
+    def updateMoney(self, totalPopulation):
+        self.money += round(totalPopulation * TAX_BY_POP, 3)
+
+    # conquers a tile for this nation; consumes influence
+    def conquerTile(self, tile, tilesByNation):
+        self.changeTileOwnership(tile, tilesByNation)
+        self.influence -= self.personality.influenceCostToConquer
+
+    # adds development to the specified tile; consumes influence
+    def addDevToTile(self, devValue, tile):
+        tile.addDevelopment(devValue)
+        self.influence -= self.personality.influenceCostToDev
+
+    # TODO
+    # will develop one of our tilesToDev at the cost of influence
+    def devTiles(self, controlledTiles, tilesByNation, isInfluenceGrowing):
+        numOfTiles = len(self.tilesToDev)
+        shuffledTiles = random.sample(self.tilesToDev, numOfTiles) # to add some RNG (idk if this is the right expression)
+
+        for i in range(numOfTiles):
+            tile = shuffledTiles[i]
+            # either develop tile if it's controlled by us
+            if self.isNationController(tile, tilesByNation):
+                devToAdd = 1 # 1 level of development, may change later according to AI personality
+                if tile.canDevelop(devToAdd) and self.influence > self.personality.influenceCostToDev: # 1 level of development
+                    self.addDevToTile(devToAdd, tile)
+                    break
+            # TODO
+            # or conquer an unoccupied tile (other nations tiles will be implemented later)
+            else:
+                #self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
+                if self.influence > self.personality.influenceCostToConquer:
+                    self.conquerTile(tile, tilesByNation)
+                    break
+            continue # if it ends up not having influence or resources
+
     # will construct buildings in our tiles
     def buildThings(self, controlledTiles):
         pass
 
     # TODO
-    # returns a list of coords with the tiles to be developed for this nation
+    # returns a list of tiles to be developed for this nation (NOT their coords)
     # I want each AI to have different strategies and different devTiles
     # Maybe I should put this function on a separate file inside data or something 
     # and let each personality import it's own getDevTiles() function
@@ -207,44 +245,21 @@ class Nation:
             controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
             totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(controlledTiles)
             self.updateSize(controlledTiles)
-            self.money = round(totalPopulation * TAX_BY_POP, 1)
+            self.updateMoney(totalPopulation)
 
             # updating influence
+            self.lastInfluence = self.influence
             self.influence += BASE_INFLUENCE_PER_TURN # basic bonus
             self.influence += self.getLeaderInfluenceBonus() # leader bonus
             self.influence -= totalMaintenance # maintenance of our territory
+            isInfluenceGrowing = True if self.influence - self.lastInfluence > 0 else False
 
             # update and develop our tilesToDev
             if self.tilesToDev:
+                self.devTiles(controlledTiles, tilesByNation, isInfluenceGrowing) # consumes influence
                 self.tilesToDev = self.checkTilesToDev(tilesByNation)
-
             else:
                 self.tilesToDev = self.getDevTiles(tiles, tilesByNation, controlledTiles)
-
-            # controlledTiles = self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
-            # influenceUnrounded, biggestVal, totalPopulation = self.getValueBiggestValueAndTotalPopulation(controlledTiles)
-            # self.influence = round(influenceUnrounded + self.influence, 1)
-
-            # self.tilesToDev = self.checkTilesToDev(tilesByNation) if self.tilesToDev else self.getDevTiles(tiles, tilesByNation, controlledTiles)
-            
-            # if self.tilesToDev:
-            #     tries = (len(self.tilesToDev) // 2 ) + 1
-            #     while(tries > 0):
-            #         tries -= 1
-            #         tile = random.choice(self.tilesToDev)
-            #         # develop tile
-            #         if self.isNationController(tile, tilesByNation):
-            #             if tile.canDevelop(1):
-            #                 tile.addDevelopment(1)
-            #             else:
-            #                 continue
-            #         # conquer tile
-            #         else:
-            #             self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
-            #             if self.influence > self.personality.influenceCostToConquer:
-            #                 self.changeTileOwnership(tile, tilesByNation)
-            #                 self.influence -= self.personality.influenceCostToConquer
-            #                 break
             
             # Phase change
             self.updatePersonality()

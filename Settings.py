@@ -8,11 +8,13 @@ BASE_ROT_PERCENTAGE = 50
 # minimum amount of influence each state gets each turn
 BASE_INFLUENCE_PER_TURN = 5
 
-# starting value for a development level/building on a tile
-BASE_DEV_MAINTENANCE = 0.2 # don't put it lower than 0.1, or it will cause problems
+# related with influence expenditure
+BASE_DEV_MAINTENANCE = 0.2 # starting value for a development level/building on a tile, must be above 0.01
+BASE_DEV_COST = 1 # cost to develop a tile in influence
+BASE_CONQUER_COST = 1.5
 
 # Tax of each pop
-TAX_BY_POP = 0.01
+TAX_BY_POP = 0.001
 
 # the speed of each turn
 GAME_SPEED = 5 #faster than 5 and it just doesn't increase more

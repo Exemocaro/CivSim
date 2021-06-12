@@ -24,6 +24,7 @@ class Engine:
         self.IMAGES = {}
         self.font = pygame.font.Font(MAIN_FONT[0], MAIN_FONT[1])
 
+        self.lastVel = 1 # last velocity, used when pressing the space bar
         self.velocity = 0 # game velocity
         self.currentMap = 2 # current way the map is being shown on the screen
         self.allMaps = {
@@ -307,8 +308,8 @@ class Engine:
                     running = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        lastVel = self.velocity if self.velocity != 0 else lastVel
-                        self.velocity = 0 if self.velocity != 0 else lastVel
+                        self.lastVel = self.velocity if self.velocity != 0 else self.lastVel
+                        self.velocity = 0 if self.velocity != 0 else self.lastVel
                         if self.velocity != 0:
                             self.velButton.text = ">" * self.velocity
                         else:
@@ -336,6 +337,7 @@ class Engine:
                     print(f"Resources: {controller.resourcesToString()}")
                     print(f"Phase: {controller.personality.phase}")
                     print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
+                    print(f"Money: {controller.money}")
                     print(f"Influence: {controller.influence}\n")
 
                     # button logic:
