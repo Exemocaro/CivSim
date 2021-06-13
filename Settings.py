@@ -20,9 +20,14 @@ BASE_BUILDING_INFLUENCE_COST = 1
 BASE_BUILDING_MAINTENANCE_MONEY = 60 # maintenance cost of a building that produces influence
 BASE_MONEY_BUILDING_BONUS = 50 # the bonus a building gives when it produces money
 BASE_BUILDING_MONEY_COST = 50
+WAR_COST = 50 # cost in money to declare a war
+WAR_MAINTENANCE_RANGE = (15,WAR_COST) # the amount of money a nation will spend each turn on a war
 
 # tech realted variables
 NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
+
+# probability out of 100 of a nation declaring war to a neighbour every turn
+WAR_CHANCE_PER_TURN = 2
 
 # Tax of each pop
 TAX_BY_POP = 0.001

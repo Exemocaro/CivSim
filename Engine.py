@@ -336,6 +336,7 @@ class Engine:
                     print(f"Controller: {controller.representation}")
                     print(f"Resources: {controller.resourcesToString()}")
                     print(f"Phase: {controller.personality.phase}")
+                    print(f"Wars: {controller.wars}")
                     print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
                     print(f"Number of Buildings: {controller.numBuildings}")
                     print(f"Technology level: {controller.techLevel}")

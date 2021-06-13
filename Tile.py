@@ -136,7 +136,7 @@ class Tile:
         # weird version I found online, read the comment below this function to understand why I chose this one
         # list comprehension in Python can be beautiful sometimes tho
         X, Y = (maxX, maxY)
-        neighbors = lambda x, y : [
+        neighbours = lambda x, y : [
             (x2, y2) 
             for x2 in range(x-1, x+2)
             for y2 in range(y-1, y+2)
@@ -148,7 +148,7 @@ class Tile:
         ]
 
         newCells = []
-        for cell in neighbors(self.x, self.y):
+        for cell in neighbours(self.x, self.y):
             try:
                 newCells.append(tiles[cell[1]][cell[0]])
             except:
@@ -247,8 +247,8 @@ class Tile:
 
     # returns this tile's maintenance value, I'll probably change this later
     def getMaintenance(self):
-        buildingMaint = [0,0]
-        maintenance = [0,0]
+        buildingMaint = [0,0] # [moneyMaintenance, influenceMaintenance]
+        maintenance = [0,0] # [moneyMaintenance, influenceMaintenance]
         if self.population > 0:
             # let's say the maintenance equals to the value + development + buildings + revolt level on it. 
             # each building/development level doubles the "devMaintenance" starting with a base value
@@ -260,7 +260,7 @@ class Tile:
             devMaintenance = ((BASE_DEV_MAINTENANCE * 100) ** devNumber) / 100 #  *100 so the number doesn't decrease if it's too low
             maintenance[1] = self.modifiers["rev"] + self.value + devMaintenance + buildingMaint[1] # the value, revolt level, development maintenance and building maintenance
             maintenance[0] = buildingMaint[0]
-        return maintenance
+        return maintenance # [moneyMaintenance, influenceMaintenance]
 
     def getNumBuildings(self):
         return len(self.buildings)
