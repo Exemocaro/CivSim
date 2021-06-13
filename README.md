@@ -1,4 +1,4 @@
-# CivSim2
+# CivSim
 My first big project in Python, an AI-only game made in Python 3.9.1 and Pygame 2.0.1
 This is still a WIP, since the AI can't do much for the time being.
 
