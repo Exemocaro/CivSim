@@ -10,7 +10,9 @@ class Personality:
         self.influenceCostToConquer = influenceCostToConquer
         self.influenceCostToDev = influenceCostToDev
 
-        self.initialSetup()
+        self.maxWars = 0
+
+        self.updateValues()
     
     # I need to organize these in a dict
     # updates the cost of influence to conquer a new tile
@@ -31,10 +33,20 @@ class Personality:
         elif self.phase == "aggressively-expanding":
             self.influenceCostToDev =  round(BASE_DEV_COST * 2)
 
+    # updates the maximum number of wars this nation can be at war with
+    def updateMaxWars(self):
+        if self.phase == "developing":
+            self.maxWars =  round(MAX_WARS / 2, 2)
+        elif self.phase == "peacefully-expanding":
+            self.maxWars =  round(MAX_WARS)
+        elif self.phase == "aggressively-expanding":
+            self.maxWars =  round(MAX_WARS * 2)
+
     # giving intial values to the variables on our AI
-    def initialSetup(self):
+    def updateValues(self):
         self.updateInfluenceToDev()
         self.updateInfluenceToConquer()
+        self.updateMaxWars()
 
 # the values passed to dev and to conquer don't really matter as they are dinamically updated
 SIMPLE_PERSONALITIES = [

@@ -166,8 +166,7 @@ class Nation:
             if prob < 5:
                 self.personality.phase = "aggressively-expanding"
 
-        self.personality.updateInfluenceToConquer()
-        self.personality.updateInfluenceToDev()
+        self.personality.updateValues()
 
     # updates our size and the number of turns without changing our size
     def updateSize(self, controlledTiles):
@@ -253,18 +252,28 @@ class Nation:
         else:
             return random.randint(WAR_MAINTENANCE_RANGE[0], limit)
 
+    # returns this nation's war budget for a specific war against the given nation
     def getWarBudget(self, nation):
         for war in self.wars:
             if war[0].id == nation.id:
                 return war[1]
         print("getWarBudget failed, probably this nation is not at war with the other nation that called it...")
-        return 0
+        return -1 # if something is wrong
+    
+    # removes a war with a certain nation
+    def removeWar(self, nation):
+        for war in self.wars:
+            n = war[0]
+            if n == nation:
+                self.wars.remove(war)
+                break
 
     # updates wars and tries to conquer enemy tiles
     def updateStance(self, tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing):
         moneyDif = self.money - self.lastMoney
+        numWars = len(self.wars)
         # first we determine if we can declare war, and if so we see if we will do that
-        if self.money > WAR_COST and moneyDif > WAR_MAINTENANCE_RANGE[0]:
+        if self.money > WAR_COST and moneyDif > WAR_MAINTENANCE_RANGE[0] and numWars < self.personality.maxWars:
             prob = random.randint(1,100)
             willDeclareWar = True if prob <= WAR_CHANCE_PER_TURN else False
             if willDeclareWar:
@@ -275,7 +284,7 @@ class Nation:
                         if neighbourNationID not in [self.id, 0]: # if True means it's a neighbour nation
                             #warNation = None
                             for nation in nations:
-                                if nation.id == neighbourNationID:
+                                if nation.id == neighbourNationID and numWars < self.personality.maxWars:
                                     #warNation = nation
                                     self.wars.append([nation, self.returnNewWarBudget(moneyDif, nations, nation)])
                                     nation.wars.append([self, nation.returnNewWarBudget(moneyDif, nations, self)])
@@ -290,13 +299,30 @@ class Nation:
                     nation = war[0]
                     nationID = self.getController(tileToConquer, tilesByNation)
                     if nation.id == nationID:
+                        if nation.size <= 0: # just in case the nation doesn't exist anymore
+                            self.wars.remove(war)
+                            nation.removeWar(self)
+                            break
                         if self.influence > self.personality.influenceCostToConquer: # it will still cost influence tho
-                            if war[1] > nation.getWarBudget(self):
+                            if war[1] > nation.getWarBudget(self) and nation.getWarBudget != -1:
                                 self.conquerTile(tileToConquer, tilesByNation)
                                 #self.actions -= 1
+                            elif nation.getWarBudget(self) == -1:
+                                self.wars.remove(war)
+                                nation.removeWar(self)
                             else: # if it doesn't conquer this tile, it will still lose influence trying to attack it
                                 self.influence -= self.personality.influenceCostToConquer
                             break
+            r = random.randint(1,100)
+            if numWars >= self.personality.maxWars 
+                if r <= PROBABILITY_ENDING_WAR_MAX:
+                    randomWar = random.choice(self.wars)
+                    self.wars.remove(randomWar)
+                    randomWar[0].removeWar(self)
+            elif r <= PROBABILITY_ENDING_WAR:
+                randomWar = random.choice(self.wars)
+                self.wars.remove(randomWar)
+                randomWar[0].removeWar(self)
 
     # adds development to the specified tile; consumes influence
     def addDevToTile(self, devValue, tile):
