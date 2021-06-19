@@ -314,7 +314,7 @@ class Nation:
                                 self.influence -= self.personality.influenceCostToConquer
                             break
             r = random.randint(1,100)
-            if numWars >= self.personality.maxWars 
+            if numWars >= self.personality.maxWars:
                 if r <= PROBABILITY_ENDING_WAR_MAX:
                     randomWar = random.choice(self.wars)
                     self.wars.remove(randomWar)
@@ -483,7 +483,7 @@ class Nation:
                     self.tilesToDev = self.getDevTiles(tiles, tilesByNation, controlledTiles)
 
                 # Try to build something on our tiles
-                self.buildThings(controlledTiles, isMoneyGrowing, isInfluenceGrowing)
+                #self.buildThings(controlledTiles, isMoneyGrowing, isInfluenceGrowing)
 
                 didSomething = True if self.actions != beforeActions else False
 
