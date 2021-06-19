@@ -268,10 +268,12 @@ class Nation:
                 self.wars.remove(war)
                 break
 
+    # TODO, ASAP
     # updates wars and tries to conquer enemy tiles
     def updateStance(self, tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing):
         moneyDif = self.money - self.lastMoney
         numWars = len(self.wars)
+        newWar = False # will be True if a new war is added, to avoid unnecessary looping
         # first we determine if we can declare war, and if so we see if we will do that
         if self.money > WAR_COST and moneyDif > WAR_MAINTENANCE_RANGE[0] and numWars < self.personality.maxWars:
             prob = random.randint(1,100)
@@ -288,12 +290,18 @@ class Nation:
                                     #warNation = nation
                                     self.wars.append([nation, self.returnNewWarBudget(moneyDif, nations, nation)])
                                     nation.wars.append([self, nation.returnNewWarBudget(moneyDif, nations, self)])
+                                    newWar = True
                                     break
+                        if newWar:
+                            break
+                    if newWar:
+                        break
+    
         # then we see if we can conquer a tile from an enemy
         # for now it won't take an action to conquer a tile
-        if self.wars: # if it's not empty, len(self.wars) > 0
+        if numWars > 0 and not newWar: # if it's not empty, len(self.wars) > 0
             enemyTiles = self.getEnemyNeighbours(tilesByNation)
-            if enemyTiles:
+            if len(enemyTiles) > 0:
                 tileToConquer = random.choice(enemyTiles)
                 for war in self.wars:
                     nation = war[0]
@@ -307,14 +315,20 @@ class Nation:
                             if war[1] > nation.getWarBudget(self) and nation.getWarBudget != -1:
                                 self.conquerTile(tileToConquer, tilesByNation)
                                 #self.actions -= 1
-                            elif nation.getWarBudget(self) == -1:
+                            elif nation.getWarBudget(self) == -1: # to delete wars with nations that might be bugged?
                                 self.wars.remove(war)
                                 nation.removeWar(self)
                             else: # if it doesn't conquer this tile, it will still lose influence trying to attack it
                                 self.influence -= self.personality.influenceCostToConquer
                             break
+            else: # no adjacent enemy tile to conquer, make peace with everyone
+                for war in self.wars:
+                    self.wars.remove(war)
+                    war[0].removeWar(self)
+            
+            # make peace with a random nation we are at war with
             r = random.randint(1,100)
-            if numWars >= self.personality.maxWars:
+            if numWars > self.personality.maxWars:
                 if r <= PROBABILITY_ENDING_WAR_MAX:
                     randomWar = random.choice(self.wars)
                     self.wars.remove(randomWar)
@@ -483,11 +497,11 @@ class Nation:
                     self.tilesToDev = self.getDevTiles(tiles, tilesByNation, controlledTiles)
 
                 # Try to build something on our tiles
-                #self.buildThings(controlledTiles, isMoneyGrowing, isInfluenceGrowing)
+                self.buildThings(controlledTiles, isMoneyGrowing, isInfluenceGrowing)
 
                 didSomething = True if self.actions != beforeActions else False
 
-            # ------ AND THAT DON'T CONUSME ACTION POINTS 
+            # ------ AND THAT DON'T CONSUME ACTION POINTS 
 
             # develop our Tiles
             self.developTiles(controlledTiles, isInfluenceGrowing)

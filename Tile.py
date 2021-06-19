@@ -135,6 +135,7 @@ class Tile:
         
         # weird version I found online, read the comment below this function to understand why I chose this one
         # list comprehension in Python can be beautiful sometimes tho
+        '''
         X, Y = (maxX, maxY)
         neighbours = lambda x, y : [
             (x2, y2) 
@@ -154,10 +155,11 @@ class Tile:
             except:
                 pass
         return newCells
+        '''
 
         # My version for some reason goes around the map, for example
         # the neighbour of 99,0 in a map with 100 tiles gets 0,0 as it's neighbour...
-        """ 
+        
         n = []
         try:
             n.append(tiles[self.y+1][self.x])
@@ -180,7 +182,7 @@ class Tile:
             pass
 
         return n
-        """
+        
 
     # adds each features bonus to self.production
     def addFeaturesBonus(self):

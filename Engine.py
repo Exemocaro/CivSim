@@ -262,12 +262,9 @@ class Engine:
         running = True
 
         lastVel = 0
-
-        #self.loadImages()
-
-        squareSelected = ()
-        #playerClicks = [] #keep track of player clicks: 2 tuples [(6,4),(4,4)]
         
+        squareSelected = ()
+
         # Before game logic
         for y in range(len(self.map.tiles)):
             for x in range(len(self.map.tiles[0])):
@@ -320,29 +317,29 @@ class Engine:
                     location = pygame.mouse.get_pos() # mouses' (x,y)
                     col = location[0] // self.tileSize
                     row = location[1] // self.tileSize
-                    #if squareSelected == (row,col) or col >= 8 or row >= 8: #clicked the same square twice
-                    if squareSelected == (): 
-                        tile = self.map.findTile((0,0))
+                    #if squareSelected == (): 
+                    #    tile = self.map.findTile((0,0))
                     if col < self.sizeX and row < self.sizeY: #clicked outside the box
                         squareSelected = (col, row) # x and y
                         tile = self.map.findTile(squareSelected)
-                    #self.printStats(tile)
-                    self.updateTexts(tile.getInfo(self.getController(tile)))
 
-                    # print some nation information on the terminal
-                    controller = self.getController(tile)
-                    print(f"Clicked coords (x, y): ({col}, {row})")
-                    print(f"Tile (x, y): {tile.coords}")
-                    print(f"Controller: {controller.representation}")
-                    print(f"Resources: {controller.resourcesToString()}")
-                    print(f"Phase: {controller.personality.phase}")
-                    print(f"Wars: {controller.wars}")
-                    print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
-                    print(f"Number of Buildings: {controller.numBuildings}")
-                    print(f"Technology level: {controller.techLevel}")
-                    print(f"Actions left: {controller.actions}")
-                    print(f"Money: {controller.money} ({controller.money - controller.lastMoney})")
-                    print(f"Influence: {controller.influence} ({controller.influence - controller.lastInfluence})\n")
+                        #self.printStats(tile)
+                        self.updateTexts(tile.getInfo(self.getController(tile)))
+
+                        # print some nation information on the terminal
+                        controller = self.getController(tile)
+                        print(f"Clicked coords (x, y): ({col}, {row})")
+                        print(f"Tile (x, y): {tile.coords}")
+                        print(f"Controller: {controller.representation}")
+                        print(f"Resources: {controller.resourcesToString()}")
+                        print(f"Phase: {controller.personality.phase}")
+                        print(f"Wars: {controller.wars}")
+                        print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
+                        print(f"Number of Buildings: {controller.numBuildings}")
+                        print(f"Technology level: {controller.techLevel}")
+                        print(f"Actions left: {controller.actions}")
+                        print(f"Money: {controller.money} ({controller.money - controller.lastMoney})")
+                        print(f"Influence: {controller.influence} ({controller.influence - controller.lastInfluence})\n")
 
                     # button logic:
                     # velocityButton

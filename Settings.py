@@ -42,7 +42,7 @@ SIZE_MEDIUM_ACTIONS = 20 # self-explanatory
 # war related variables
 MAX_WARS = 2 # maximum number of wars a nation can be at war on a certain moment
 PROBABILITY_ENDING_WAR = 5 # how likely it is for a war to end on a certain turn, out of 100
-PROBABILITY_ENDING_WAR_MAX = 15 # same as above, but for when a nation reached the max number of wars
+PROBABILITY_ENDING_WAR_MAX = 20 # same as above, but for when a nation reached the max number of wars
 
 # max number of buildings a tile can have
 MAX_BUILDINGS_PER_TILE = 3
