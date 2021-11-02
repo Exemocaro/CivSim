@@ -120,6 +120,7 @@ class Nation:
         biggest = 0
         pop = 0
         numBuildings = 0
+        self.neighbourTiles = [] # emptying the neighbour tiles so it doesn't accumulate infinitely
         for tile in controlledTiles:
 
             # since we are looping through all tiles we will take this chance to fill this
@@ -360,6 +361,9 @@ class Nation:
                         self.actions -= 1
                         break
                 # TODO
+                elif self.getController(tile, tilesByNation) != 0:
+                    # an AI shouldn't develop antoher nation's tile, so we'll leave it like that just in case...
+                    pass
                 # or conquer an unoccupied tile (other nations tiles will be implemented later)
                 else:
                     #self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
@@ -469,7 +473,7 @@ class Nation:
     # given the tilesByNation found in Engine.py, checks if all the tiles to be developed are controlled by this nation.
     def checkTilesToDev(self, tilesByNation):
         for tile in self.tilesToDev:
-            if self.isNationController(tile, tilesByNation):
+            if self.getController(tile, tilesByNation) != 0:
                 self.tilesToDev.remove(tile)
 
     # makes a turn for this AI, called each turn for each AI/nation
@@ -489,10 +493,11 @@ class Nation:
             beforeActions = self.actions
             didSomething = True
             while self.actions > 0 and didSomething:
+                # first check if we don't have enemy tiles in our tiles to dev
+                self.checkTilesToDev(tilesByNation)
                 # update and develop our tilesToDev
                 if self.tilesToDev:
                     self.devTiles(controlledTiles, tilesByNation, isInfluenceGrowing) # consumes influence
-                    self.tilesToDev = self.checkTilesToDev(tilesByNation)
                 else:
                     self.tilesToDev = self.getDevTiles(tiles, tilesByNation, controlledTiles)
 

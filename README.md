@@ -32,5 +32,5 @@ python Main.py # for Windows
 ## Notes
 The code can be messy sometimes because I had no specific objective in mind when first writing the code, and I changed my mind a lot of times when deciding what some functions should do and how the game's mechanincs works.
 
-Also, for now it only works on 1080p or bigger resolutions, for smaller resolutions you'll have to decrease the size of the map and the UI.
-I'll try to fix it after improving the AI, if I'm not too lazy :)))
+It works fine on any resolution, but keep in mind that for smaller resolutions you'll have to decrease the size of the map and the UI.
+For now the recommended map size is "small", but I'll try to make the game fasterand improve the AI, if I'm not too lazy :)))

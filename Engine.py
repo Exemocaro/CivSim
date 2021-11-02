@@ -281,8 +281,7 @@ class Engine:
         self.nations.append(emptyNation)
 
         # Normal nations
-        i = self.numPlayers
-        while i > 0:
+        for i in range(self.numPlayers):
             tile = self.map.tiles[random.randint(1, len(self.map.tiles) - 1)][random.randint(1, len(self.map.tiles[0]) - 1)]
             while tile.terrain.name in noBeginningTerrains or self.tilesByNation[tile.coords] != 0:
                 tile = self.map.tiles[random.randint(1, self.map.sizeY - 1)][random.randint(1, self.map.sizeY - 1)]
@@ -292,9 +291,7 @@ class Engine:
             n = Nation.getNewNation(id)
             n.changeTileOwnership(tile, self.tilesByNation)
             self.nations.append(n)
-            print(f"Created nation with: id:{id} name:{n.name}")
-
-            i -= 1
+            #print(f"Created nation with: id:{id} name:{n.name}") # for testing only basically
 
         #print(f"Name: {self.nations[0].name} | Representation: {self.nations[0].representation} | Controlled Tiles: {len(self.nations[0].controlledTiles)}")
 
