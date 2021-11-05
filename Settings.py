@@ -27,7 +27,7 @@ WAR_MAINTENANCE_RANGE = (15,WAR_COST) # the amount of money a nation will spend 
 NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
 
 # probability out of 100 of a nation declaring war to a neighbour every turn
-WAR_CHANCE_PER_TURN = 2
+WAR_CHANCE_PER_TURN = 5
 
 # Tax of each pop
 TAX_BY_POP = 0.001

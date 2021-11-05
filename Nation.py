@@ -360,11 +360,9 @@ class Nation:
                         self.addDevToTile(devToAdd, tile)
                         self.actions -= 1
                         break
-                # TODO
                 elif self.getController(tile, tilesByNation) != 0:
-                    # an AI shouldn't develop antoher nation's tile, so we'll leave it like that just in case...
-                    pass
-                # or conquer an unoccupied tile (other nations tiles will be implemented later)
+                    # an AI shouldn't develop antoher nation's tile, so we'll delete the tile from the list
+                    self.tilesToDev.remove(tile)
                 else:
                     #self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
                     if self.influence > self.personality.influenceCostToConquer:
@@ -462,6 +460,7 @@ class Nation:
                         #else:
                         #    devTiles.append(n)
                 else:
+                    # If they do not control any tile then that means they were conquered, so they shouldn't get into this loop
                     print(f"\n{self.name} with id {self.id} has no tiles!!! Something went wrong! Controlled Tiles: {self.getControlledTiles(tilesByNation)}")
                     break
 
@@ -475,6 +474,12 @@ class Nation:
         for tile in self.tilesToDev:
             if self.getController(tile, tilesByNation) != 0:
                 self.tilesToDev.remove(tile)
+    
+    # removes this nation from the game if it controlls no tiles (i.e. they were conquered)
+    # TODO, delete from tilesByNation too?
+    def checkExistence(self, nations, controlledTiles):
+        if len(controlledTiles) <= 0:
+            nations.remove(self)
 
     # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation):
@@ -484,6 +489,7 @@ class Nation:
             numBuildings, totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(tiles, controlledTiles)
             self.updateSize(controlledTiles)
             self.updateActions()
+            #self.checkExistence(nations, controlledTiles)
             self.numBuildings = numBuildings
             isMoneyGrowing = self.updateMoney(totalPopulation, totalMaintenance[0])
             isInfluenceGrowing = self.updateInfluence(totalMaintenance[1], totalInfluenceBonus) # updating our influence and checking if it's growing or not
