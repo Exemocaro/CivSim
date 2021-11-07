@@ -2,7 +2,6 @@ from Settings import *
 from Terrain import *
 from Feature import *
 from Building import *
-from itertools import product, starmap
 import math
 
 #from Resource import *
