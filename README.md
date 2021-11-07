@@ -24,9 +24,9 @@ pip install -r requirements.txt
 Then we can run the game:
 
 ```
-python3 Main.py # for Linux
+python3 CivSim.py # for Linux
 
-python Main.py # for Windows
+python CivSim.py # for Windows
 ```
 
 ## Notes

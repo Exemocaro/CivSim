@@ -82,8 +82,8 @@ BARBARIANS_COLOR2 = (52, 73, 94)
 RIVER_COLOR = (30, 144, 255)
 
 # the font (and its size) used in the UI
-MAIN_FONT = ("fonts/LEMONMILK-Regular.otf", 20)
-SMALL_FONT = ("fonts/LEMONMILK-Regular.otf", 20)
+MAIN_FONT = ("../fonts/LEMONMILK-Regular.otf", 20)
+SMALL_FONT = ("../fonts/LEMONMILK-Regular.otf", 20)
 
 # (X, Y, tileSize, number_of_rivers)
 MAP_SIZES = {

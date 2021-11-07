@@ -1,4 +1,5 @@
 This is where I try to implement and discuss ideas on how to make a nation expand/develop.
+I'll also post some known bugs in here.
 
 Each turn, each nation will get some influence points according to:
 -Each tile's influence bonus, based on available resources

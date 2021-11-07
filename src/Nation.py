@@ -579,7 +579,7 @@ class Nation:
     def genNationName():
         names = []
         name = "ahh"
-        with open("data/kingdomNames.txt", "r") as file:
+        with open("../data/kingdomNames.txt", "r") as file:
             names = file.readlines()
         while len(name) < 4: # just to avoid empty lines
             name = random.choice(names)
