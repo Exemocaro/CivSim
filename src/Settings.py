@@ -15,7 +15,6 @@ BASE_CONQUER_COST = 1.5 # cost in influence to conquer a tile
 BASE_BUILDING_MAINTENANCE_INFLUENCE = 0.4 # maintenance cost of a building that produces money
 BASE_INFLUENCE_BUILDING_BONUS = 0.6 # the bonus a building gives when it produces influence
 BASE_BUILDING_INFLUENCE_COST = 2 # cost in influence to build a building
-WAR_INFLUENCE_MAINTENANCE_COST = 0.4 # the amount of influence a nation loses each turn when in war, increases with time
 SAFE_INFLUENCE_TO_DEV = 50 # influence stored * this number is the "safe" number to dev tiles when losing influence
 
 # related with money expenditure
@@ -94,6 +93,9 @@ RIVER_COLOR = (30, 144, 255)
 # the font (and its size) used in the UI
 MAIN_FONT = ("../fonts/LEMONMILK-Regular.otf", 20)
 SMALL_FONT = ("../fonts/LEMONMILK-Regular.otf", 20)
+
+# useful files
+KINGDOM_NAMES_FILE = "../data/kingdomNames.txt"
 
 # (X, Y, tileSize, number_of_rivers)
 MAP_SIZES = {

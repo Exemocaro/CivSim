@@ -1,4 +1,3 @@
-from pygame import encode_file_path
 from Resource import *
 from Character import *
 from Terrain import *
@@ -38,7 +37,7 @@ class Nation:
 
         #self.units = [] # probably won't use this
 
-        self.warInfluenceCost = 0
+        #self.warInfluenceCost = 0 # DOES NOT WORK
 
         self.neighbourTiles = [] # all the tiles adjacent to our nation that don't belong to us
 
@@ -205,9 +204,8 @@ class Nation:
         self.influence += self.getLeaderInfluenceBonus() # leader bonus
         self.influence += tileBonus
         self.influence -= totalMaintenance # maintenance of our territory
-        self.influence -= self.warInfluenceCost
         self.influence = round(self.influence, 2)
-        return True if self.influence - self.lastInfluence > 0 else False # returns if the influence is growing or not
+        return True if (self.influence - self.lastInfluence) > 0 else False # returns if the influence is growing or not
 
     # updates our current leader with either new stats or with death :( will also replace it in that case
     def updateLeader(self):
@@ -290,20 +288,12 @@ class Nation:
 
         # in case a nation has no tiles / was conquered:
         if len(controlledTiles) == 0 and numWars > 0: # make peace with everyone in case this nation has no tiles
-            self.warInfluenceCost = 0
             for war in self.wars:
                 self.wars.remove(war)
                 war[0].removeWar(self)
         elif len(controlledTiles) == 0: # reset some values and ignore the rest of the function
-            self.warInfluenceCost = 0
             return None
 
-        if len(self.wars) == 0: # updating the influence maintenance on wars
-            self.warInfluenceCost = 0
-        else:
-            # the better the tech, the costly it is to maintain wars for longer periods of time
-            # making this to avoid countries from getting too big
-            self.warInfluenceCost += TECH_BONUS[self.techLevel - 1] * WAR_INFLUENCE_MAINTENANCE_COST
         newWar = False # will be True if a new war is added, to avoid unnecessary looping
         # first we determine if we can declare war, and if so we see if we will do that
         if self.money > WAR_COST and moneyDif > WAR_MAINTENANCE_RANGE[0] and numWars < self.personality.maxWars:
@@ -507,7 +497,7 @@ class Nation:
         for tile in self.tilesToDev:
             if self.getController(tile, tilesByNation) != 0:
                 self.tilesToDev.remove(tile)
-    
+
     # removes this nation from the game if it controlls no tiles (i.e. they were conquered)
     # TODO, delete from tilesByNation too?
     def checkExistence(self, nations, controlledTiles):
@@ -518,7 +508,7 @@ class Nation:
 
     # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation):
-        if self.id != 0 and not self.wasEliminated:
+        if self.id != 0: # and not self.wasEliminated:
             print("math | ", end = "")
             # updating and defining basic variables
             controlledTiles = self.getTiles(tilesByNation, tiles) #self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
@@ -621,7 +611,7 @@ class Nation:
     def genNationName():
         names = []
         name = "ahh"
-        with open("../data/kingdomNames.txt", "r") as file:
+        with open(KINGDOM_NAMES_FILE, "r") as file:
             names = file.readlines()
         while len(name) < 4: # just to avoid empty lines
             name = random.choice(names)
