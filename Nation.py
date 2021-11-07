@@ -1,7 +1,7 @@
 from Resource import *
 from Character import *
 from Terrain import *
-from include.nameGen import *
+from nameGen import *
 #from Unit import *
 from Settings import *
 from Personality import *
@@ -35,6 +35,8 @@ class Nation:
         self.numBuildings = 0 # to make it easier to print on the console
 
         #self.units = [] # probably won't use this
+
+        self.warInfluenceCost = 0
 
         self.neighbourTiles = [] # all the tiles adjacent to our nation that don't belong to us
 
@@ -192,6 +194,7 @@ class Nation:
         self.influence += self.getLeaderInfluenceBonus() # leader bonus
         self.influence += tileBonus
         self.influence -= totalMaintenance # maintenance of our territory
+        self.influence -= self.warInfluenceCost
         self.influence = round(self.influence, 2)
         return True if self.influence - self.lastInfluence > 0 else False # returns if the influence is growing or not
 
@@ -269,16 +272,20 @@ class Nation:
                 self.wars.remove(war)
                 break
 
-    # TODO, ASAP
     # updates wars and tries to conquer enemy tiles
     def updateStance(self, tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing):
         moneyDif = self.money - self.lastMoney
         numWars = len(self.wars)
+        if len(self.wars) == 0: # updating the influence maintenance on wars
+            self.warInfluenceCost = 0
+        else:
+            #self.warInfluenceCost += WAR_INFLUENCE_MAINTENANCE_COST
+            pass
         newWar = False # will be True if a new war is added, to avoid unnecessary looping
         # first we determine if we can declare war, and if so we see if we will do that
         if self.money > WAR_COST and moneyDif > WAR_MAINTENANCE_RANGE[0] and numWars < self.personality.maxWars:
             prob = random.randint(1,100)
-            willDeclareWar = True if prob <= WAR_CHANCE_PER_TURN else False
+            willDeclareWar = True if prob <= PROBABILITY_WAR_PER_TURN else False
             if willDeclareWar:
                 # another loop :( I'll try to fix this if it consumes too much CPU
                 for tile in controlledTiles:

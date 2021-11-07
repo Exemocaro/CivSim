@@ -1,5 +1,5 @@
 from Settings import *
-from include.nameGen import *
+from nameGen import *
 import random
 #from Resource import *
 
