@@ -69,7 +69,7 @@ noResourceTerrains = ["Mountain", "Ocean", "Ice"]
 
 uncontrollableTerrains = ["Mountain", "Ocean", "Ice"]
 
-noBeginningTerrains = ["Mountain", "Ocean", "Ice", "Coast"]
+noBeginningTerrains = ["Mountain", "Ocean", "Coast", "Ice"]
 
 def getNormalTerrains():
     terrains = []

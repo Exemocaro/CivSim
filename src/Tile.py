@@ -131,34 +131,37 @@ class Tile:
 
     # returns this tile's neighbours, up, down, left and right
     def getNeighbours(self, tiles, maxX, maxY):
+
+        n = []
+        if (self.y+1 < maxY and self.x+1 < maxX):#
+            n.append(tiles[self.y+1][self.x+1])
+
+        if (self.x+1 < maxX):#
+            n.append(tiles[self.y][self.x+1])
+
+        if (self.y-1 >= 0 and self.x+1 < maxX):#
+            n.append(tiles[self.y-1][self.x+1])
+
+        if (self.y+1 < maxY):#
+            n.append(tiles[self.y+1][self.x])
+
+        if (self.y-1 >= 0):#
+            n.append(tiles[self.y-1][self.x])
+
+        if (self.y+1 < maxY and self.x-1 >= 0):#
+            n.append(tiles[self.y+1][self.x-1])
+
+        if (self.x-1 >= 0):#
+            n.append(tiles[self.y][self.x-1])
+
+        if (self.y-1 >= 0 and self.x-1 >= 0):#
+            n.append(tiles[self.y-1][self.x-1])
+
+        return n
         
-        # weird version I found online, read the comment below this function to understand why I chose this one
-        # list comprehension in Python can be beautiful sometimes tho
-        '''
-        X, Y = (maxX, maxY)
-        neighbours = lambda x, y : [
-            (x2, y2) 
-            for x2 in range(x-1, x+2)
-            for y2 in range(y-1, y+2)
-            if (-1 < x <= X and
-            -1 < y <= Y and
-            (x != x2 or y != y2) and
-            (0 <= x2 <= X) and
-            (0 <= y2 <= Y))
-        ]
-
-        newCells = []
-        for cell in neighbours(self.x, self.y):
-            try:
-                newCells.append(tiles[cell[1]][cell[0]])
-            except:
-                pass
-        return newCells
-        '''
-
         # My version for some reason goes around the map, for example
         # the neighbour of 99,0 in a map with 100 tiles gets 0,0 as it's neighbour...
-        
+        '''
         n = []
         try:
             n.append(tiles[self.y+1][self.x])
@@ -181,7 +184,7 @@ class Tile:
             pass
 
         return n
-        
+        '''
 
     # adds each features bonus to self.production
     def addFeaturesBonus(self):

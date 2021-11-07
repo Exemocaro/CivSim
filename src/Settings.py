@@ -16,6 +16,7 @@ BASE_BUILDING_MAINTENANCE_INFLUENCE = 0.4 # maintenance cost of a building that 
 BASE_INFLUENCE_BUILDING_BONUS = 0.6 # the bonus a building gives when it produces influence
 BASE_BUILDING_INFLUENCE_COST = 2 # cost in influence to build a building
 WAR_INFLUENCE_MAINTENANCE_COST = 0.4 # the amount of influence a nation loses each turn when in war, increases with time
+SAFE_INFLUENCE_TO_DEV = 50 # influence stored * this number is the "safe" number to dev tiles when losing influence
 
 # related with money expenditure
 BASE_BUILDING_MAINTENANCE_MONEY = 60 # maintenance cost of a building that produces influence
@@ -26,6 +27,7 @@ WAR_MAINTENANCE_RANGE = (15, WAR_COST) # the amount of money a nation will spend
 
 # tech realted variables
 NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
+TECH_BONUS = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3.0, 3.5, 4.0] # tech related multipliers, 11 levels, 1 - 11
 
 # Tax of each pop
 TAX_BY_POP = 0.001
@@ -42,6 +44,14 @@ MAX_WARS = 3 # maximum number of wars a nation can be at war on a certain moment
 PROBABILITY_ENDING_WAR = 3 # how likely it is for a war to end on a certain turn, out of 100
 PROBABILITY_ENDING_WAR_MAX = 15 # same as above, but for when a nation reached the max number of wars
 PROBABILITY_WAR_PER_TURN = 6 # probability out of 100 of a nation declaring war on a neighbour every turn
+
+# personality related variables
+TURNS_TO_EXPAND = 10 # minimum num of turns necesseray without expanding (territory) to start expanding again
+PROBABILITY_AGGRESSIVE_EXPANSION = 5 # probability (out of 100) of a nation to start "aggressively expanding"
+PROBABILITY_AGGR_EXP_DEV_TILE = 3# probability of a nation that's "aggressively expanding" to add a tile to its devTile list
+PROBABILITY_PEACE_EXP_DEV_TILE = 20 # probability of a nation that's "peacefully expanding" to add a tile to its devTile list
+PROBABILITY_DEVELOPING_DEV_TILE = 80 # probability of a nation that's "developing" to add a tile to its devTile list
+MAX_DEV_TRIES = 10 # number of tries a nation will take to add a tile to its devTiles list
 
 # max number of buildings a tile can have
 MAX_BUILDINGS_PER_TILE = 3

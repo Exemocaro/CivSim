@@ -2,6 +2,7 @@ from Map import *
 from Button import *
 from Timer import *
 from Nation import *
+from Tile import *
 import pygame
 import random
 #from pygame import mixer # music/sounds
@@ -284,7 +285,7 @@ class Engine:
         for i in range(self.numPlayers):
             tile = self.map.tiles[random.randint(1, len(self.map.tiles) - 1)][random.randint(1, len(self.map.tiles[0]) - 1)]
             while tile.terrain.name in noBeginningTerrains or self.tilesByNation[tile.coords] != 0:
-                tile = self.map.tiles[random.randint(1, self.map.sizeY - 1)][random.randint(1, self.map.sizeY - 1)]
+                tile = self.map.tiles[random.randint(4, self.map.sizeY - 4)][random.randint(4, self.map.sizeY - 4)]
 
             # Create a new nation on the random tile
             id = len(self.nations)
@@ -293,6 +294,7 @@ class Engine:
             self.nations.append(n)
             #print(f"Created nation with: id:{id} name:{n.name}") # for testing only basically
 
+        print("Generation complete")
         #print(f"Name: {self.nations[0].name} | Representation: {self.nations[0].representation} | Controlled Tiles: {len(self.nations[0].controlledTiles)}")
 
         # the main game loop
@@ -393,28 +395,17 @@ class Engine:
             if self.velocity != 0:
                 if self.timer.getTimePassed()>=1/(GAME_SPEED * self.velocity):
                     self.turn += 1
-                    
-                    #if self.turn == 10:
-                    #    print(self.tilesByNation)
-                    
-                    #for y in range(len(self.map.tiles)):
-                    #    for x in range(len(self.map.tiles[0])):
-                    #        if self.map.tiles[y][x].population > 0:
-                    #            tile.develop()
-                            
                     for nation in self.nations:
-                        #gameState = (self.map.tiles, self.nations, self.tilesByNation)
-                        #newGameState = nation.makeTurn(gameState)
-                        nation.makeTurn(self.map.tiles, self.nations, self.tilesByNation)
-                        #self.map.tiles = newGameState[0]
-                        #self.nations = newGameState[1]
-                        #self.tilesByNation = newGameState[2]
-
-
+                        if nation.id != 0:
+                            print("Starting turn | ", end = "")
+                            nation.makeTurn(self.map.tiles, self.nations, self.tilesByNation)
+                        else:
+                            print("Neutral nation id==0")
                     # restart the timer
                     self.timer.restart()
             
             # UI-related functions
+            #print("ui draw | ", end = "")
 
             # Fill the screen with that grey color
             self.screen.fill(BACKGROUND_COLOR)
@@ -440,6 +431,7 @@ class Engine:
             drawPieces() """
 
             #self.drawMapTerrain()
+            #print("map draw")
             self.drawMap()
 
             self.showTexts()
