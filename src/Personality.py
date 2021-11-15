@@ -36,11 +36,11 @@ class Personality:
     # updates the maximum number of wars this nation can be at war with
     def updateMaxWars(self):
         if self.phase == "developing":
-            self.maxWars =  round(MAX_WARS / 2, 2)
+            self.maxWars =  round(MIN_WARS / 2, 2)
         elif self.phase == "peacefully-expanding":
-            self.maxWars =  round(MAX_WARS)
+            self.maxWars =  round(MIN_WARS)
         elif self.phase == "aggressively-expanding":
-            self.maxWars =  round(MAX_WARS * 2)
+            self.maxWars =  round(MIN_WARS * 2)
 
     # giving intial values to the variables on our AI
     def updateValues(self):

@@ -13,7 +13,7 @@ BASE_DEV_MAINTENANCE = 0.2 # starting value for a development level, must be abo
 BASE_DEV_COST = 1 # cost to develop a tile in influence
 BASE_CONQUER_COST = 1.5 # cost in influence to conquer a tile
 BASE_BUILDING_MAINTENANCE_INFLUENCE = 0.4 # maintenance cost of a building that produces money
-BASE_INFLUENCE_BUILDING_BONUS = 0.6 # the bonus a building gives when it produces influence
+BASE_INFLUENCE_BUILDING_BONUS = 1 # the bonus a building gives when it produces influence
 BASE_BUILDING_INFLUENCE_COST = 2 # cost in influence to build a building
 SAFE_INFLUENCE_TO_DEV = 50 # influence stored * this number is the "safe" number to dev tiles when losing influence
 
@@ -22,27 +22,30 @@ BASE_BUILDING_MAINTENANCE_MONEY = 60 # maintenance cost of a building that produ
 BASE_MONEY_BUILDING_BONUS = 50 # the bonus a building gives when it produces money
 BASE_BUILDING_MONEY_COST = 50
 WAR_COST = 50 # cost in money to declare a war
-WAR_MAINTENANCE_RANGE = (15, WAR_COST) # the amount of money a nation will spend each turn on a war
+WAR_MAINTENANCE_RANGE = (15, WAR_COST) # the amount of money a nation will spend each turn on a war. Will improve with tech
+WAR_INFLUENCE_MAINTENANCE_COST = 0.4 # the amount of influence a nation loses each turn when in war; increases with time
 
-# tech realted variables
+# tech related variables
 NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
 TECH_BONUS = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3.0, 3.5, 4.0] # tech related multipliers, 11 levels, 1 - 11
 
-# Tax of each pop
+# tax of each pop
 TAX_BY_POP = 0.001
 
-# max number of actions each nation can make in a turn (includes building, developing and conquering tiles)
-MAX_ACTIONS = 7
-MEDIUM_ACTIONS = 5
+# actions related variables -> used by nations each turn (includes building, developing and conquering tiles)
 MIN_ACTIONS = 3 # don't mess with this value
-SIZE_MAX_ACTIONS = 40 # number of tiles a nation needs to have to reach max number of actions
-SIZE_MEDIUM_ACTIONS = 20 # self-explanatory
+ACTIONS_STEP = 2 # number of actions gained each time a nation increases its controlled tiles by the number below
+ACTIONS_STEP_VALUE = 40 # number of tiles needed to get more actions
 
 # war related variables
-MAX_WARS = 3 # maximum number of wars a nation can be at war on a certain moment
+MIN_WARS = 2 # maximum number of wars a nation can be at war on a certain moment
+WARS_STEP = 1 # number of wars gained each time a nation increases its controlled tiles by the number below
+WARS_STEP_VALUE = 200 # number of tiles needed to get more concurrent wars
 PROBABILITY_ENDING_WAR = 3 # how likely it is for a war to end on a certain turn, out of 100
 PROBABILITY_ENDING_WAR_MAX = 15 # same as above, but for when a nation reached the max number of wars
 PROBABILITY_WAR_PER_TURN = 6 # probability out of 100 of a nation declaring war on a neighbour every turn
+WAR_MONEY_REWARD = 150
+WAR_INFLUENCE_REWARD = 1500
 
 # personality related variables
 TURNS_TO_EXPAND = 10 # minimum num of turns necesseray without expanding (territory) to start expanding again
@@ -51,6 +54,7 @@ PROBABILITY_AGGR_EXP_DEV_TILE = 3# probability of a nation that's "aggressively 
 PROBABILITY_PEACE_EXP_DEV_TILE = 20 # probability of a nation that's "peacefully expanding" to add a tile to its devTile list
 PROBABILITY_DEVELOPING_DEV_TILE = 80 # probability of a nation that's "developing" to add a tile to its devTile list
 MAX_DEV_TRIES = 10 # number of tries a nation will take to add a tile to its devTiles list
+BASE_DEATH_VALUE = 1 # base probability of a nation's leader dying each year. will increase with age
 
 # max number of buildings a tile can have
 MAX_BUILDINGS_PER_TILE = 3
@@ -89,6 +93,8 @@ BUTTON_COLOR = (150,150,150)
 BARBARIANS_COLOR = (174, 214, 241)
 BARBARIANS_COLOR2 = (52, 73, 94)
 RIVER_COLOR = (30, 144, 255)
+SELECTED_NATION_COLOR = (255, 255, 255)
+CAPITAL_COLOR = (255, 255, 0)
 
 # the font (and its size) used in the UI
 MAIN_FONT = ("../fonts/LEMONMILK-Regular.otf", 20)
@@ -96,6 +102,7 @@ SMALL_FONT = ("../fonts/LEMONMILK-Regular.otf", 20)
 
 # useful files
 KINGDOM_NAMES_FILE = "../data/kingdomNames.txt"
+LOG_FILE = "logs/logs.log"
 
 # (X, Y, tileSize, number_of_rivers)
 MAP_SIZES = {
@@ -105,3 +112,12 @@ MAP_SIZES = {
     "small" : (100, 60, 14, 50), # for best performance, recommended
     #"test" : (50, 30, 20, 30)
 }
+
+""" 
+# general imports for basically all files
+import logging
+
+lvl = logging.DEBUG
+fmt = "%(levelname)s:%(message)s"
+logging.basicConfig(filename=LOG_FILE, level=lvl, format=fmt) # setting the logging level
+"""

@@ -261,8 +261,8 @@ class Tile:
                 buildingMaint[1] += building.getMaintenance()[1]
 
             devNumber = self.modifiers["dev"]
-            devMaintenance = ((BASE_DEV_MAINTENANCE * 100) ** devNumber) / 100 #  *100 so the number doesn't decrease if it's too low
-            maintenance[1] = self.modifiers["rev"] + self.value + devMaintenance + buildingMaint[1] # the value, revolt level, development maintenance and building maintenance
+            devMaintenance = BASE_DEV_MAINTENANCE + devNumber #  *100 so the number doesn't decrease if it's too low
+            maintenance[1] = self.modifiers["rev"] + self.value + devMaintenance + buildingMaint[1] # the revolt level, value, development maintenance and building maintenance
             maintenance[0] = buildingMaint[0]
         return maintenance # [moneyMaintenance, influenceMaintenance]
 
@@ -279,7 +279,7 @@ class Tile:
     def getInfo(self, nation):
         info = []
         #info.append(f"{self.controller.representation}")
-        info.append(f"{nation.representation}")
+        info.append(f"{nation.id} | {nation.representation}")
         info.append(f"Name: {self.name}")
         info.append(f"Coords: {self.coords}")
         info.append(f"Terrain: {self.terrain.getInfo()}")

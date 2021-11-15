@@ -27,7 +27,8 @@ class Engine:
 
         self.lastVel = 1 # last velocity, used when pressing the space bar
         self.velocity = 0 # game velocity
-        self.currentMap = 2 # current way the map is being shown on the screen
+        self.currentMap = 1 # current way the map is being shown on the screen
+        self.selectedNation = -1 # the id of the nation that's currently selected
         self.allMaps = {
             1 : self.drawMapPolitical, # population
             2 : self.drawMapTerrain, # terrain
@@ -127,7 +128,7 @@ class Engine:
                     pygame.draw.polygon(self.screen, BLACK, [fstP, sndP, trdP], 1)
 
     # draws the map on the screen based on political entities
-    # each nation's color is mixed with the terrain color usig the blendColors() function
+    # each nation's color is mixed with the terrain color using the blendColors() function
     # TODO
     def drawMapPolitical(self):
         for y in range(len(self.map.tiles)):
@@ -136,7 +137,11 @@ class Engine:
                 colorTerrain = tile.terrain.color
                 nation = self.nations[self.tilesByNation[tile.coords]]
 
-                color1 = (nation.color[0], nation.color[1], nation.color[2], self.politicalAlphaValue)
+                # selecting the color for this nation and checking if it's selected
+                if self.selectedNation == nation.id:
+                    color1 = (SELECTED_NATION_COLOR[0], SELECTED_NATION_COLOR[1], SELECTED_NATION_COLOR[2], self.politicalAlphaValue)
+                else:
+                    color1 = (nation.color[0], nation.color[1], nation.color[2], self.politicalAlphaValue)
                 color = self.blendColors(color1, colorTerrain) if nation.id != 0 else colorTerrain
 
                 pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tileSize, y*self.tileSize, self.tileSize, self.tileSize))
@@ -146,6 +151,13 @@ class Engine:
                     sndP = [x*self.tileSize + self.tileSize - 1, y*self.tileSize + self.tileSize - 1]
                     trdP = [x*self.tileSize + (self.tileSize // 2), y*self.tileSize - 1]
                     pygame.draw.polygon(self.screen, BLACK, [fstP, sndP, trdP], 1)
+
+                # drawing the capital
+                if nation.capital == tile:
+                    fstP = [x*self.tileSize, y*self.tileSize + self.tileSize / 2]
+                    sndP = [x*self.tileSize + self.tileSize, y*self.tileSize + self.tileSize / 2]
+                    #pygame.draw.polygon(self.screen, CAPITAL_COLOR, [fstP, sndP], 1)
+                    pygame.draw.circle(self.screen, CAPITAL_COLOR, (x*self.tileSize + self.tileSize / 2, y*self.tileSize + self.tileSize / 2), self.tileSize / 2 - 1)
 
     # draws the map on the screen based on population values of each tile
     def drawMapPopulation(self):
@@ -253,9 +265,13 @@ class Engine:
     def find(self, tileCoords):
         return self.tilesByNation[tileCoords]
 
-    # adds a 
+    # adds a controller to a certain tile inside the tilesByNation dict
     def addItem(self, tileCoords, controllerId):
         self.tilesByNation[tileCoords] = controllerId
+
+    # updates the id stored on self.selectedNation
+    def updateSelectedNation(self, controller):
+        self.selectedNation = controller.id
 
     # run the game
     def run(self):
@@ -291,6 +307,7 @@ class Engine:
             id = len(self.nations)
             n = Nation.getNewNation(id)
             n.changeTileOwnership(tile, self.tilesByNation)
+            n.setCapital(tile)
             self.nations.append(n)
             #print(f"Created nation with: id:{id} name:{n.name}") # for testing only basically
 
@@ -327,9 +344,10 @@ class Engine:
 
                         # print some nation information on the terminal
                         controller = self.getController(tile)
-                        print(f"Clicked coords (x, y): ({col}, {row})")
+                        self.updateSelectedNation(controller)
+                        print(f"\nClicked coords (x, y): ({col}, {row})")
                         print(f"Tile (x, y): {tile.coords}")
-                        print(f"Controller: {controller.representation}")
+                        print(f"Controller: {controller.id} | {controller.representation}")
                         print(f"Resources: {controller.resourcesToString()}")
                         print(f"Phase: {controller.personality.phase}")
                         print(f"Wars: {controller.wars}")
@@ -338,7 +356,7 @@ class Engine:
                         print(f"Technology level: {controller.techLevel}")
                         print(f"Actions left: {controller.actions}")
                         print(f"Money: {controller.money} ({controller.money - controller.lastMoney})")
-                        print(f"Influence: {controller.influence} ({controller.influence - controller.lastInfluence})\n")
+                        print(f"Influence: {controller.influence} ({controller.influence - controller.lastInfluence})")
 
                     # button logic:
                     # velocityButton
@@ -365,42 +383,35 @@ class Engine:
                         self.showTexts()
                         pygame.display.flip()
 
-                        n.changeTileOwnership(self.waitForTileInput(), self.tilesByNation)
+                        newTile = self.waitForTileInput()
+                        n.changeTileOwnership(newTile, self.tilesByNation)
+                        n.setCapital(newTile)
 
                         self.updateTexts(["", "", "Done!", "A new nation was born!"])
                         self.nations.append(n)
+
+                        print(f"\nCreated a new nation with id {n.id}")
 
                     # right buttons
                     for button in self.rightButtons:
                         if button.isOver(location):
                             self.currentMap = button.info
 
-                    """ if len(playerClicks) == 1 and getPieceAtLocation(playerClicks[0]) == "--":
-                        squareSelected = ()
-                        playerClicks = []
-                    if len(playerClicks) == 2: # after 2nd click
-                        if not updateBoard(playerClicks): # if the piece cant move, then reset
-                            squareSelected = ()
-                            playerClicks = []
-                        else:
-                            playerTurn = -playerTurn
-                            legalMoves = getAllLegalMoves(playerTurn)
-                            updateMateText(legalMoves)
-                            printStats(legalMoves, playerClicks)
-                            squareSelected = ()
-                            playerClicks = [] """
-
             # Game logic
             # 1 in-game day, may change it
             if self.velocity != 0:
                 if self.timer.getTimePassed()>=1/(GAME_SPEED * self.velocity):
                     self.turn += 1
+                    print(f"---- Starting turn {self.turn} ----")
                     for nation in self.nations:
+                        #if self.turn == 30: # testing if negative influence crashes the game (used to)
+                        #    nation.influence -= 300000
                         if nation.id != 0:
-                            print("Starting turn | ", end = "")
+                            print(f"starting turn id: {nation.id} | ", end = "")
                             nation.makeTurn(self.map.tiles, self.nations, self.tilesByNation)
+                            print("turn end")
                         else:
-                            print("Neutral nation id==0")
+                            print("skipping turn; neutral nation; id == 0")
                     # restart the timer
                     self.timer.restart()
             
@@ -424,21 +435,14 @@ class Engine:
             self.nationButton.draw(self.screen, (0,0,0))
             self.drawRightButtons()
 
-            """ if not playerClicks:
-                drawBoard([])
-            else:
-                drawBoard(getAllLegalMovesWithPiece(getPieceAtLocation(playerClicks[0]), playerClicks[0]))
-            drawPieces() """
-
-            #self.drawMapTerrain()
-            #print("map draw")
             self.drawMap()
 
             self.showTexts()
+
             # date text
             self.showText(pygame.font.Font(SMALL_FONT[0], SMALL_FONT[1]), f"Turn {self.turn}", self.WIDTH - 150, self.HEIGHT + 7)
 
             #update the display
             #pygame.display.update()
-            pygame.display.flip() # I don't know the difference between these 2
+            pygame.display.flip()
             self.clock.tick(60)
