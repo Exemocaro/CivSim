@@ -293,8 +293,8 @@ class Tile:
         info.append(f"Value: {self.value}")
         info.append(self.productionToString())
         info.append(f"Tax Revenue: {self.taxRevenue}")
-        info.append(f"FoodToGrow: {self.foodToGrow}")
-        info.append(f"MinimumFood: {self.minimumFood}")
+        info.append(f"Technology level: {nation.techLevel}")
+        info.append(f"Actions left: {nation.actions}")
         info.append(f"{nation.leader.representation}")
         info.append(f"{nation.leader.getValues()}")
         return info

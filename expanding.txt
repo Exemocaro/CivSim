@@ -1,24 +1,15 @@
-This is where I try to implement and discuss ideas on how to make a nation expand/develop.
-I'll also post some known bugs in here.
+known bugs/problems:
+-big nations tend to slow the game down. the bigger the slower the game gets; that has to do with the way each nation gets their "neighbourTiles". Will be fixed asap
+-for resolutions smaller than 1080p the window won't fit into the screen. You'll need to manually decrease the map size and the window text size.
 
-Each turn, each nation will get some influence points according to:
--Each tile's influence bonus, based on available resources
--The leader prosperity
--Current wars with other nations
-
-The total population of each nation also pays taxes in the form of money, that will give bonuses to this nation.
+The main uses of Money are:
+-tile upkeep, acording to the buildings on a certain tile
+-war upkeep and determining if we will win a war against an opponent
+-build buildings that produce influence
 
 The main uses of Influnce are:
--To "maintain" tiles, each tile has a certain maintenance per turn, based on its value
+-tile upkeep, each tile has a certain maintenance per turn, based on its value and buildings
+-war upkeep, each war will cost each nation a certain amount of influence per turn
+-build buildings that produce money
 -To take tiles away from other nations
 -To develop the nation's tiles and keep them from revolting.
-
-After calculating the new influence value there are 3 possible outcomes:
--The nation will have an increasing amount of influence
--The nation won't have either a increasing or decreasing amount of influence, so it stays the same
--The nation will have a decreasing amount of influence
-
-With an increasing amount of influence, the nation will try to conquer more land.
-With a neutral amount of influence, it will try to develop it's tiles.
-With a decreasing/negative (both) amount of influence, the nation will probably lose territory to revolts/other nations.
-

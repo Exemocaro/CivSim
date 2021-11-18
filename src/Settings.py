@@ -3,7 +3,7 @@ BASE_GROWTH_RATE = 0.001
 BASE_DECLINE_RATE = -0.01
 
 # Resources lost each turn
-BASE_ROT_PERCENTAGE = 50
+BASE_ROT_PERCENTAGE = 55 # will eventually change according to each leader's prosperity
 
 # minimum amount of influence each state gets each turn
 BASE_INFLUENCE_PER_TURN = 5
@@ -26,8 +26,9 @@ WAR_MAINTENANCE_RANGE = (15, WAR_COST) # the amount of money a nation will spend
 WAR_INFLUENCE_MAINTENANCE_COST = 1 # the amount of influence a nation loses each turn when in war; increases with time
 
 # tech related variables
-NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
-TECH_BONUS = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3.0, 3.5, 4.0] # tech related multipliers, 11 levels, 1 - 11
+MAX_TECH_LEVEL = 10
+TECH_BONUS = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3.0, 3.5, 4.0] # tech multipliers, MAX_TECH_LEVEL + 1 levels, 0 - MAX_TECH_LEVEL
+COUNTRY_DEV_STABILIZER = 1 # variable to be added to every country's dev so that there are no big differences between tech levels
 
 # tax of each pop
 TAX_BY_POP = 0.001
@@ -44,8 +45,8 @@ WARS_STEP_VALUE = 200 # number of tiles needed to get more concurrent wars
 PROBABILITY_ENDING_WAR = 3 # how likely it is for a war to end on a certain turn, out of 100
 PROBABILITY_ENDING_WAR_MAX = 15 # same as above, but for when a nation reached the max number of wars
 PROBABILITY_WAR_PER_TURN = 6 # probability out of 100 of a nation declaring war on a neighbour every turn
-WAR_MONEY_REWARD = 150
-WAR_INFLUENCE_REWARD = 1500
+WAR_MONEY_REWARD = 150 # amount of money a nation ears when it wins a war
+WAR_INFLUENCE_REWARD = 1500 # amount of influence a nation ears when it wins a war
 
 # personality related variables
 TURNS_TO_EXPAND = 10 # minimum num of turns necesseray without expanding (territory) to start expanding again
@@ -58,11 +59,12 @@ BASE_DEATH_VALUE = 2 # base probability of a nation's leader dying each year. wi
 VITALITY_DEATH_PENALTY = 1 # extra probability of a leader dying when their vitality is too low # out of 1000
 VITALITY_DEATH_BONUS = 1 # bonus probability of a leader dying when their vitality is too high # out of 1000
 
-# max number of buildings a tile can have
-MAX_BUILDINGS_PER_TILE = 3
+# buildings related variables
+MAX_BUILDINGS_PER_TILE = 15 # max number of buildings a tile can have
+BUILDINGS_PER_ACTION = 2 # number of buildings that can be built at the cost of a single action point
 
 # the speed of each turn
-GAME_SPEED = 5 #faster than 5 and it just doesn't increase more
+GAME_SPEED = 5 # faster than 5 and it just doesn't increase more
 
 # Resource Values
 BASE_FOOD = 1

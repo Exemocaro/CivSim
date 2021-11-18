@@ -102,8 +102,8 @@ class Character:
         else:
             self.probabilityOfDying -= VITALITY_DEATH_BONUS
         
-        r = random.randint(1, 1000) # out of 100
-        print(f"age: {self.age} chance: {r} | dying: {self.probabilityOfDying} | ", end = "")
+        r = random.randint(1, 1000)
+        #print(f"age: {self.age} chance: {r} | dying: {self.probabilityOfDying} | ", end = "")
         if r <= self.probabilityOfDying: # the leader died :(
             return Character.getSuccessor(self)
         else:

@@ -281,6 +281,7 @@ class Engine:
         lastVel = 0
         
         squareSelected = ()
+        tile = None
 
         # Before game logic
         for y in range(len(self.map.tiles)):
@@ -312,6 +313,7 @@ class Engine:
             #print(f"Created nation with: id:{id} name:{n.name}") # for testing only basically
 
         print("Generation complete")
+        tile = None # reset the value of "tile"
         #print(f"Name: {self.nations[0].name} | Representation: {self.nations[0].representation} | Controlled Tiles: {len(self.nations[0].controlledTiles)}")
 
         # the main game loop
@@ -401,7 +403,10 @@ class Engine:
             # 1 in-game day, may change it
             if self.velocity != 0:
                 if self.timer.getTimePassed()>=1/(GAME_SPEED * self.velocity):
-                    self.turn += 1
+                    self.turn += 1 # updating the turn
+
+                    if tile: self.updateTexts(tile.getInfo(self.getController(tile))) # updating the on-scren text 
+
                     print(f"---- Starting turn {self.turn} ----")
                     for nation in self.nations:
                         #if self.turn == 30: # testing if negative influence crashes the game (used to)

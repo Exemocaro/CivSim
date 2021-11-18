@@ -1,4 +1,4 @@
-from math import isinf
+from pygame.cursors import sizer_x_strings
 from Resource import *
 from Character import *
 from Terrain import *
@@ -8,6 +8,7 @@ from Settings import *
 from Personality import *
 from Building import *
 import random
+from math import sqrt
 
 class Nation:
     def __init__(self, id, color, name, leader, modifiers, wars, personality):
@@ -29,8 +30,8 @@ class Nation:
         self.lastInfluence = 0 # to track if the ifluence is growing or not
         self.influence = 5
 
-        self.techLevel = 1 # max 11
-        self.finalDev = 1 # testing purposes to decide our tech level
+        self.techLevel = 0 # max 10
+        self.countryDev = 1 # testing purposes to decide our tech level
 
         self.lastMoney = 0
         self.money = 5 # available money for this nation
@@ -65,8 +66,15 @@ class Nation:
 
     # updates our current capital if it's not controlledByUs
     def updateCapital(self, controlledTiles, tilesByNation):
+        changedCapital = False
         if not self.isNationController(self.capital, tilesByNation) and controlledTiles:
-            self.capital = random.choice(controlledTiles)
+            randomTiles = random.sample(controlledTiles, len(controlledTiles))
+            for tile in randomTiles:
+                if tile.terrain.name not in noBeginningTerrains:
+                    changedCapital = True
+                    break
+            self.capital = tile
+            return changedCapital
 
     # prints the coords of a list of given tiles controlled by a nation
     def printTiles(self, tiles):
@@ -99,6 +107,10 @@ class Nation:
             ctrl.append(tiles[coord[1]][coord[0]]) # first y, then x (but why? i dont remember why i made it like this)
         return ctrl
 
+    # returns the tile at the passed coords
+    def getTileByCoords(self, coords, tiles):
+        return tiles[coords[1]][coords[0]] # first y, then x (but why? i dont remember why i made it like this)
+
     # return all tiles this nation controls
     def getTiles(self, tilesByNation, tiles):
         ctrl = []
@@ -115,6 +127,7 @@ class Nation:
     # decreases a certain percentage of resources of this nation's stockpile, usually called each turn
     def rotResources(self, percentage):
         for r in self.resources:
+            percentage -= self.leader.prosperity # more prosperity, more resources
             self.resources[r] = round(self.resources[r] * ((100-percentage) / 100))
 
     # returns the total maintenance value of all our wars, in money 
@@ -126,19 +139,19 @@ class Nation:
 
     # TODO
     # returns all neighbours of a tile that belong to an enemy nation
-    def getEnemyNeighbours(self, tilesByNation):
+    def getEnemyNeighbours(self, tilesByNation, nations):
         enemyNeighbours = []
         for war in self.wars:
             nation = war[0]
             for n in self.neighbourTiles:
                 neighbourNationID = self.getControllerId(n, tilesByNation)
-                if nation.id == neighbourNationID:
+                if nation.id == neighbourNationID: # small check in case some nations lose and keep territory
                     enemyNeighbours.append(n)
         return enemyNeighbours
 
     # returns total maintenance, the total value, the average value, the biggest population and the average population in our controlled tiles
     # this was made like this to avoid looping several times, this way we loop only one and get all the data we need
-    def getData(self, tiles, controlledTiles):
+    def getData(self, tiles, controlledTiles, turn):
         totalInfluence = 0
         maintenance = [0,0]
         average = 0
@@ -167,7 +180,7 @@ class Nation:
                 biggest = tile.value
         maintenance[0] += self.getWarMaintenance() # war maintenance added to total money maintenance
         average = 0 if len(controlledTiles) == 0 else round(totalValue / len(controlledTiles), 2)
-        totalInfluence *= TECH_BONUS[self.techLevel - 1] # the higher the tech, the better the bonus on influence gain
+        totalInfluence *= TECH_BONUS[self.techLevel] # the higher the tech, the better the bonus on influence gain
         return (numBuildings, totalInfluence, maintenance, totalValue, average, biggest, pop)
 
     # returns our leader's influence bonus, will be added each turn to our nation
@@ -222,32 +235,52 @@ class Nation:
         influenceDif = self.influence - self.lastInfluence
         return True if influenceDif > 0 else False # returns True if the influence is growing, False if not
 
-    #TODO
-    # updates our current tech level according to the total number of buildings in our nation
-    def updateTech(self, averageValue, totalValue, numBuildings, controlledTiles, turn):
+    # returns a list with the countryDev level of all nations that are still playing
+    def getNationsDevs(self, nations):
+        list = []
+        for nation in nations:
+            if not nation.wasEliminated and nation.countryDev != 0 and self.countryDev > COUNTRY_DEV_STABILIZER:
+                list.append(nation.countryDev)
+        return list
 
+    # updates our current tech level according to the total number of buildings in our nation
+    def updateTech(self, averageValue, totalValue, numBuildings, controlledTiles, turn, nations):
+
+        # determine our country development. will be used to determine our tech level
         if turn > 1 and controlledTiles:
             multiplier = (averageValue * self.maxActions * self.size)
             if multiplier != 0:
-                self.finalDev = (totalValue + numBuildings) / multiplier
+                self.countryDev = ((totalValue + numBuildings) / multiplier) + COUNTRY_DEV_STABILIZER
             else:
-                self.finalDev = 0
-            self.finalDev = round(self.finalDev, 4)
+                self.countryDev = COUNTRY_DEV_STABILIZER
+            self.countryDev = round(self.countryDev, 4)
 
-        newTechLevel = 1 # 1 it's the minimum value
-        while numBuildings >= NUM_BUILDINGS_TO_INCREASE_TECH:
-            numBuildings -= NUM_BUILDINGS_TO_INCREASE_TECH
-            newTechLevel += 1
-        self.techLevel = newTechLevel if newTechLevel <= 11 else 11
+            devList = self.getNationsDevs(nations) # to sort by the second element of the tuple, the indice
+            newTechLevel = self.techLevel
+            if devList: # if it's not empty
+                minD = min(devList)
+                maxD = max(devList)
+                dif = (maxD - minD) / MAX_TECH_LEVEL 
+                newTechLevel = 0
+                while minD <= self.countryDev and self.techLevel < MAX_TECH_LEVEL and minD > 0.1:
+                    minD += dif
+                    newTechLevel += 1
+
+            # increase our tech level slowly
+            if newTechLevel > self.techLevel:
+                self.techLevel += 1
+            elif newTechLevel < self.techLevel:
+                self.techLevel -= 1
 
     # conquers a tile for this nation; consumes influence
-    def conquerTile(self, tile, tilesByNation):
+    def conquerTile(self, tile, tilesByNation, consumesAction):
         self.changeTileOwnership(tile, tilesByNation)
         self.influence -= self.personality.influenceCostToConquer
+        if consumesAction: self.actions -= 1 # consumes an action point
 
     # what happens to this nation if it fails to conquer a tile
     def loseBattle(self):
-        techBonus = TECH_BONUS[self.techLevel - 1]
+        techBonus = TECH_BONUS[self.techLevel]
         self.influence -= self.personality.influenceCostToConquer * techBonus
 
     # updates this nation's available actions according to our size
@@ -288,7 +321,7 @@ class Nation:
             n = war[0]
             if n == nation:
                 self.wars.remove(war)
-                break
+                return True
         print("removeWar failed, this nation is not at war with the passed nation")
 
     # ends a war with the passed nation
@@ -298,7 +331,7 @@ class Nation:
 
     # penalties this nation will take for losing a war against the passed nation
     def takeLostWarPenalties(self, nation):
-        techBonus = TECH_BONUS[nation.techLevel - 1]
+        techBonus = TECH_BONUS[nation.techLevel]
         self.money -= WAR_MONEY_REWARD * techBonus
         nation.money += WAR_MONEY_REWARD * techBonus
         self.influence -= WAR_INFLUENCE_REWARD * techBonus
@@ -306,22 +339,56 @@ class Nation:
 
     #TODO, take leader's personality into account after calculating this
     # update's our nations max number of possible concurrent wars. More than this and the nation will take heavy penalties
-    def updateMaxWars(self):
-        numWars = len(self.wars)
+    def updateMaxWars(self, controlledTiles):
+        numTiles = len(controlledTiles)
         self.personality.maxWars = MIN_WARS
-        self.personality.maxWars += (numWars//WARS_STEP_VALUE) * WARS_STEP
+        self.personality.maxWars += (numTiles//WARS_STEP_VALUE) * WARS_STEP
+
+    # what happens to the passed nation when its capital is conquered by this nation
+    def conqueredCapital(self, nation, tiles, tilesByNation):
+        for tileCoords in tilesByNation: # key are the tile coords, value is the id of the owner
+            if self.influence > (self.personality.influenceCostToConquer * TECH_BONUS[self.techLevel] * TECH_BONUS[nation.techLevel]):
+                if tilesByNation[tileCoords] == nation.id:
+                    self.changeTileOwnership(self.getTileByCoords(tileCoords, tiles), tilesByNation)
+                    self.influence -= self.personality.influenceCostToConquer
+
+    # determines the result of a battle between this nation and nation we are at war with in the passed war
+    def doBattle(self, war):
+        nation = war[0]
+        attackerRNG = random.randint(1, 6)
+        defenderRNG = random.randint(1, 6)
+        attackerIronPerCapita = 0
+        defenderIronPerCapita = 0
+        if self.size > 0 and nation.size > 0: # having a lot of iron is important
+            attackerIronPerCapita = round((self.resources["iron"] / self.size) * 10)
+            defenderIronPerCapita = round((nation.resources["iron"] / nation.size) * 10)
+        ourChances = (war[1] + attackerRNG + attackerIronPerCapita) + (TECH_BONUS[self.techLevel] * self.leader.martial)
+        theirChances = (nation.getWarBudget(self) + defenderRNG + defenderIronPerCapita) + (TECH_BONUS[nation.techLevel] * nation.leader.martial)
+        winsBattle = ourChances > theirChances
+        return winsBattle
 
     #TODO
     # tries to conquer an enemy tile if we are at war with someone
     def makeAttack(self, tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing):
         numWars = len(self.wars)
         if numWars > 0:
-            enemyTiles = self.getEnemyNeighbours(tilesByNation) #TODO
+            enemyTiles = self.getEnemyNeighbours(tilesByNation, nations) #TODO
+            
+            # will select some random Tiles from our enemies and select the closest to the capital
+            # to avoid conquering tiles that are too far away from the main territory and avoid enclaves
+            def chooseTile(n):
+                distList = []
+                for i in range(n):
+                    tileToConquer = random.choice(enemyTiles)
+                    distanceToCapital = sqrt((tileToConquer.x - self.capital.x)**2 + (tileToConquer.y - self.capital.y)**2)
+                    distList.append((distanceToCapital, tileToConquer))
+                distList.sort(key=lambda x:x[0])
+                return distList[0][1]
+            
             if enemyTiles:
                 # choosing a random tile to attack
-                tileToConquer = random.choice(enemyTiles)
+                tileToConquer = chooseTile(3) # number of tiles to choose from
                 nationID = self.getControllerId(tileToConquer, tilesByNation)
-                tileToConquer = random.choice(enemyTiles)
                 nation = self.getNation(nations, nationID)
                 war = 0
                 # finding the right nation and war
@@ -335,10 +402,11 @@ class Nation:
                     self.endWar(nation)
                 if self.influence > self.personality.influenceCostToConquer: # it will still cost influence tho
                     # leaders and technology are very important in battles too:
-                    winsBattle = (war[1] + (TECH_BONUS[self.techLevel - 1] * self.leader.martial)) > (nation.getWarBudget(self) + (TECH_BONUS[nation.techLevel - 1] * nation.leader.martial))
+                    winsBattle = self.doBattle(war)
                     if winsBattle and nation.getWarBudget(self) != -1 and self.actions > 0:
-                        self.conquerTile(tileToConquer, tilesByNation)
-                        self.actions -= 1 # consumes action points
+                        self.conquerTile(tileToConquer, tilesByNation, True)
+                        if tileToConquer == nation.capital:
+                            self.conqueredCapital(nation, tiles, tilesByNation)
                     elif nation.getWarBudget(self) == -1: # to delete wars with nations that might be bugged?
                         self.endWar(nation)
                     else: # if it doesn't conquer this tile, it will still lose influence trying to attack it
@@ -369,7 +437,7 @@ class Nation:
         else:
             # the better the tech, the costly it is to maintain wars for longer periods of time
             # making this to avoid countries from getting too big
-            self.warInfluenceCost += (TECH_BONUS[self.techLevel - 1] * WAR_INFLUENCE_MAINTENANCE_COST) * numWars
+            self.warInfluenceCost += (TECH_BONUS[self.techLevel] * WAR_INFLUENCE_MAINTENANCE_COST) * numWars
 
         newWar = False # will be True if a new war is added, to avoid unnecessary looping
         # first we determine if we can declare war, and if so we see if we will do that
@@ -432,8 +500,7 @@ class Nation:
             else: # if the tile is not ours and it's empty (neutral, id == 0) then we conquer it
                 #self.personality.influenceCostToConquer = biggestVal * (len(controlledTiles) // 2) * self.personality.conquerPhaseBonus
                 if self.influence > self.personality.influenceCostToConquer:
-                    self.conquerTile(tile, tilesByNation)
-                    self.actions -= 1
+                    self.conquerTile(tile, tilesByNation, True)
         else: # no influence to develop our tiles
             pass 
     
@@ -449,22 +516,49 @@ class Nation:
         return None # if we end up not choosing any building
 
     # will construct a building in one of our tiles
-    def buildThings(self, controlledTiles, isMoneyGrowing, isInfluenceGrowing):
-        
+    def buildThings(self, controlledTiles, isMoneyGrowing, isInfluenceGrowing, numberOfBuildings):
+
         if controlledTiles:
             # so we don't repeat code
-            def chooseTile():
+            def chooseTiles(n): # n is the number of tiles to choose
                 i = len(controlledTiles) - 1
                 shuffledTiles = random.sample(controlledTiles, i + 1)
-                tileToBuild = shuffledTiles[i]
-                while i >= 0 and tileToBuild.population <= 0 and len(tileToBuild.buildings) == MAX_BUILDINGS_PER_TILE:
-                    tileToBuild = shuffledTiles[i]
-                    i -= 1
-                return tileToBuild if i >= 0 else None
+                tilesToBuild = []
+                randomTile = shuffledTiles[i]
+                while n > 0:
+                    while i >= 0 and (len(randomTile.buildings) >= MAX_BUILDINGS_PER_TILE or randomTile.population <= 0):
+                        randomTile = shuffledTiles[i]
+                        i -= 1
+                    if i >= 0: tilesToBuild.append(randomTile)
+                    n -= 1
+                return tilesToBuild if tilesToBuild else None
             
-            tileToBuild = chooseTile()
+            def missingMoney(building):
+                if not (self.money > building.moneyCost or building.moneyCost <= 0):
+                    return True
+                return False
+
+            def missingInfluence(building):
+                if not (self.influence > building.influenceCost or building.influenceCost <= 0):
+                    return True
+                return False
+
+            def buildOnTile(tile, building):
+                if building.influenceCost > 0: # then it's a money building:
+                    if not missingInfluence(building):
+                        tile.buildings.append(building)
+                        self.influence -= building.influenceCost
+                        self.money -= building.moneyCost
+                        self.actions -= 1
+                else: # influence building:
+                    if not missingMoney(building):
+                        tile.buildings.append(building)
+                        self.influence -= building.influenceCost
+                        self.money -= building.moneyCost
+                        self.actions -= 1
+            
+            tilesToBuild = chooseTiles(numberOfBuildings)
             buildings = []
-            focus = "i"
 
             # We'll try to build 2 buildings, one for influence and another for money:
 
@@ -473,20 +567,17 @@ class Nation:
                 buildings.append(self.chooseBuilding("i"))
             else:
                 buildings.append(self.chooseBuilding("m"))
-            
+
             # money building
             if isInfluenceGrowing: # we can spend on money buildings
                 buildings.append(self.chooseBuilding("m"))
             else:
                 buildings.append(self.chooseBuilding("i"))
 
-            if tileToBuild is not None:
-                for building in buildings:
-                    if building is not None and self.actions > 0:
-                        tileToBuild.buildings.append(building)
-                        self.influence -= building.influenceCost
-                        self.money -= building.moneyCost
-                        self.actions -= 1
+            # and now build them
+            for i in range(numberOfBuildings):
+                if buildings[i] is not None and tilesToBuild and self.actions > 0:
+                    buildOnTile(tilesToBuild[i], buildings[i])
 
     # TODO
     # returns a list of tiles to be developed for this nation (NOT their coords)
@@ -549,7 +640,6 @@ class Nation:
             #if not self.isNationController(tile, tilesByNation) and self.getControllerId(tile, tilesByNation) != 0:
             if self.getControllerId(tile, tilesByNation) != 0:
                 self.tilesToDev.remove(tile)
-                #pass
 
     # removes this nation from the game if it controlls no tiles (i.e. they were conquered)
     def checkExistence(self, nations, controlledTiles):
@@ -561,13 +651,12 @@ class Nation:
     # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation, turn):
         if self.id != 0 and not self.wasEliminated:
-            print("math | ", end = "")
             # updating and defining basic variables
             controlledTiles = self.getTiles(tilesByNation, tiles) #self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
-            numBuildings, totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(tiles, controlledTiles)
+            numBuildings, totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(tiles, controlledTiles, turn)
             self.updateSize(controlledTiles)
             self.updateActions(controlledTiles)
-            self.updateMaxWars()
+            self.updateMaxWars(controlledTiles)
             self.numBuildings = numBuildings
             isMoneyGrowing = self.updateMoney(totalPopulation, totalMaintenance[0]) # updating our money and checking if it's growing or not
             isInfluenceGrowing = self.updateInfluence(totalMaintenance[1], totalInfluenceBonus) # updating our influence and checking if it's growing or not
@@ -584,6 +673,8 @@ class Nation:
             # ------ THINGS THAT CONSUME ACTION POINTS
 
             # first check if we don't have enemy tiles in our tiles to dev
+            # idk why but without this weird function I made countries won't conquer other tiles
+            # they will still develop their tiles, even though the function removes owned tiles from the list
             self.checkTilesToDev(tilesByNation)
 
             didSomething = True
@@ -595,7 +686,7 @@ class Nation:
                 self.developTiles(tiles, controlledTiles, tilesByNation, isInfluenceGrowing) # consumes influence
 
                 # try to build something on our tiles
-                self.buildThings(controlledTiles, isMoneyGrowing, isInfluenceGrowing)
+                self.buildThings(controlledTiles, isMoneyGrowing, isInfluenceGrowing, BUILDINGS_PER_ACTION)
 
                 # attack nearby neighbour tiles from our enemies
                 self.makeAttack(tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing)
@@ -606,36 +697,28 @@ class Nation:
             # ------ AND THAT DON'T CONSUME ACTION POINTS
 
             # update our tiles resources, pops, etc
-            print("1 | ", end = "")
             self.updateTiles(controlledTiles)
 
             # personality update, includes changing the phase and other stats realted to it
-            print("2 | ", end = "")
             self.updatePersonality()
 
             # declares wars on neighbours and tries to conquer their tiles
-            print("3 | ", end = "")
             self.updateStance(tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing)
 
             # updates our capital (in canse we lost ours)
-            print("4 | ", end = "")
             self.updateCapital(controlledTiles, tilesByNation)
 
             # Some of the resources will "rot" every turn, so nations don't accumulate infinite resources
-            print("5 | ", end = "")
             self.rotResources(self.rotPercentage)
 
             # update our leader stats/age
-            print("6 | ", end = "")
             self.leader = self.leader.update()
 
             # update our tech level
-            print("7 | ", end = "")
-            self.updateTech(averageValue, totalValue, numBuildings, controlledTiles, turn)
-            print(f"{self.finalDev} | ", end = "")
+            self.updateTech(averageValue, totalValue, numBuildings, controlledTiles, turn, nations)
+            print(f"dev: {self.countryDev} | tech: {self.techLevel} | ", end = "")
 
             # check if the nation is still in the game
-            print("8 | ", end = "")
             self.checkExistence(nations, controlledTiles)
 
     # I have to copy these functions to this class because I can't import Engine
