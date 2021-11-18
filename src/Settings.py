@@ -23,7 +23,7 @@ BASE_MONEY_BUILDING_BONUS = 50 # the bonus a building gives when it produces mon
 BASE_BUILDING_MONEY_COST = 50
 WAR_COST = 50 # cost in money to declare a war
 WAR_MAINTENANCE_RANGE = (15, WAR_COST) # the amount of money a nation will spend each turn on a war. Will improve with tech
-WAR_INFLUENCE_MAINTENANCE_COST = 0.4 # the amount of influence a nation loses each turn when in war; increases with time
+WAR_INFLUENCE_MAINTENANCE_COST = 1 # the amount of influence a nation loses each turn when in war; increases with time
 
 # tech related variables
 NUM_BUILDINGS_TO_INCREASE_TECH = 5 # each 5 buildings in a nation's territory will increase it's tech level
@@ -33,9 +33,9 @@ TECH_BONUS = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3.0, 3.5, 4.0] # tech rela
 TAX_BY_POP = 0.001
 
 # actions related variables -> used by nations each turn (includes building, developing and conquering tiles)
-MIN_ACTIONS = 3 # don't mess with this value
-ACTIONS_STEP = 2 # number of actions gained each time a nation increases its controlled tiles by the number below
-ACTIONS_STEP_VALUE = 40 # number of tiles needed to get more actions
+MIN_ACTIONS = 5 # don't mess with this value
+ACTIONS_STEP = 1 # number of actions gained each time a nation increases its controlled tiles by the number below
+ACTIONS_STEP_VALUE = 20 # number of tiles needed to get more actions
 
 # war related variables
 MIN_WARS = 2 # maximum number of wars a nation can be at war on a certain moment
@@ -50,11 +50,13 @@ WAR_INFLUENCE_REWARD = 1500
 # personality related variables
 TURNS_TO_EXPAND = 10 # minimum num of turns necesseray without expanding (territory) to start expanding again
 PROBABILITY_AGGRESSIVE_EXPANSION = 5 # probability (out of 100) of a nation to start "aggressively expanding"
-PROBABILITY_AGGR_EXP_DEV_TILE = 3# probability of a nation that's "aggressively expanding" to add a tile to its devTile list
+PROBABILITY_AGGR_EXP_DEV_TILE = 3 # probability of a nation that's "aggressively expanding" to add a tile to its devTile list
 PROBABILITY_PEACE_EXP_DEV_TILE = 20 # probability of a nation that's "peacefully expanding" to add a tile to its devTile list
 PROBABILITY_DEVELOPING_DEV_TILE = 80 # probability of a nation that's "developing" to add a tile to its devTile list
 MAX_DEV_TRIES = 10 # number of tries a nation will take to add a tile to its devTiles list
-BASE_DEATH_VALUE = 1 # base probability of a nation's leader dying each year. will increase with age
+BASE_DEATH_VALUE = 2 # base probability of a nation's leader dying each year. will increase with age # out of 1000
+VITALITY_DEATH_PENALTY = 1 # extra probability of a leader dying when their vitality is too low # out of 1000
+VITALITY_DEATH_BONUS = 1 # bonus probability of a leader dying when their vitality is too high # out of 1000
 
 # max number of buildings a tile can have
 MAX_BUILDINGS_PER_TILE = 3

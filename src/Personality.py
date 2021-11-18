@@ -34,19 +34,19 @@ class Personality:
             self.influenceCostToDev =  round(BASE_DEV_COST * 2)
 
     # updates the maximum number of wars this nation can be at war with
-    def updateMaxWars(self):
-        if self.phase == "developing":
-            self.maxWars =  round(MIN_WARS / 2, 2)
-        elif self.phase == "peacefully-expanding":
-            self.maxWars =  round(MIN_WARS)
-        elif self.phase == "aggressively-expanding":
-            self.maxWars =  round(MIN_WARS * 2)
+    #def updateMaxWars(self):
+    #    if self.phase == "developing":
+    #        self.maxWars =  round(MIN_WARS / 2, 2)
+    #    elif self.phase == "peacefully-expanding":
+    #        self.maxWars =  round(MIN_WARS)
+    #    elif self.phase == "aggressively-expanding":
+    #        self.maxWars =  round(MIN_WARS * 2)
 
     # giving intial values to the variables on our AI
     def updateValues(self):
         self.updateInfluenceToDev()
         self.updateInfluenceToConquer()
-        self.updateMaxWars()
+        #self.updateMaxWars()
 
 # the values passed to dev and to conquer don't really matter as they are dinamically updated
 SIMPLE_PERSONALITIES = [

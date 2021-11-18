@@ -408,7 +408,7 @@ class Engine:
                         #    nation.influence -= 300000
                         if nation.id != 0:
                             print(f"starting turn id: {nation.id} | ", end = "")
-                            nation.makeTurn(self.map.tiles, self.nations, self.tilesByNation)
+                            nation.makeTurn(self.map.tiles, self.nations, self.tilesByNation, self.turn)
                             print("turn end")
                         else:
                             print("skipping turn; neutral nation; id == 0")
