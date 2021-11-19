@@ -42,9 +42,9 @@ ACTIONS_STEP_VALUE = 20 # number of tiles needed to get more actions
 MIN_WARS = 2 # maximum number of wars a nation can be at war on a certain moment
 WARS_STEP = 1 # number of wars gained each time a nation increases its controlled tiles by the number below
 WARS_STEP_VALUE = 200 # number of tiles needed to get more concurrent wars
-PROBABILITY_ENDING_WAR = 3 # how likely it is for a war to end on a certain turn, out of 100
+PROBABILITY_ENDING_WAR = 2 # how likely it is for a war to end on a certain turn, out of 100
 PROBABILITY_ENDING_WAR_MAX = 15 # same as above, but for when a nation reached the max number of wars
-PROBABILITY_WAR_PER_TURN = 6 # probability out of 100 of a nation declaring war on a neighbour every turn
+PROBABILITY_WAR_PER_TURN = 8 # probability out of 100 of a nation declaring war on a neighbour every turn
 WAR_MONEY_REWARD = 150 # amount of money a nation ears when it wins a war
 WAR_INFLUENCE_REWARD = 1500 # amount of influence a nation ears when it wins a war
 

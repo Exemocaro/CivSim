@@ -151,7 +151,7 @@ class Nation:
 
     # returns total maintenance, the total value, the average value, the biggest population and the average population in our controlled tiles
     # this was made like this to avoid looping several times, this way we loop only one and get all the data we need
-    def getData(self, tiles, controlledTiles, turn):
+    def getData(self, tiles, controlledTiles, tilesByNation, turn):
         totalInfluence = 0
         maintenance = [0,0]
         average = 0
@@ -165,8 +165,9 @@ class Nation:
             # since we are looping through all tiles we will take this chance to fill this
             neighbours = tile.getNeighbours(tiles, len(tiles[0]), len(tiles))
             for n in neighbours:
-                if n not in self.neighbourTiles:
-                    self.neighbourTiles.append(n)
+                if not self.isNationController(n, tilesByNation): # this if increases performance by a LOT
+                    if n not in self.neighbourTiles:
+                        self.neighbourTiles.append(n)
             
             tileMaintenance = tile.getMaintenance() # temp variable
 
@@ -653,7 +654,7 @@ class Nation:
         if self.id != 0 and not self.wasEliminated:
             # updating and defining basic variables
             controlledTiles = self.getTiles(tilesByNation, tiles) #self.getTilesByCoords(self.getControlledTiles(tilesByNation), tiles) # list of tiles, NOT their coords
-            numBuildings, totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(tiles, controlledTiles, turn)
+            numBuildings, totalInfluenceBonus, totalMaintenance, totalValue, averageValue, biggestVal, totalPopulation = self.getData(tiles, controlledTiles, tilesByNation, turn)
             self.updateSize(controlledTiles)
             self.updateActions(controlledTiles)
             self.updateMaxWars(controlledTiles)
