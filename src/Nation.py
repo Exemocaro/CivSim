@@ -25,6 +25,8 @@ class Nation:
         }
         self.modifiers = modifiers
         self.wars = wars # list of lists that contain the nations we are at war with and the war maintenance of each war
+        self.maxWars = 0 # max number of wars a nation can participate in at a certain a moment
+        self.focusedTiles = [] # list of tiles to make an attack on, so countries don't grow in random shapes
         self.capital = 0 # contains the tile this country was first created in
 
         self.lastInfluence = 0 # to track if the ifluence is growing or not
@@ -137,16 +139,34 @@ class Nation:
             maintenance += war[1]
         return maintenance
 
-    # TODO
     # returns all neighbours of a tile that belong to an enemy nation
-    def getEnemyNeighbours(self, tilesByNation, nations):
+    def getEnemyNeighbours(self, tiles, tilesByNation, nations):
         enemyNeighbours = []
+        self.focusedTiles = []
+
+        # get the ids of the nations we are at war with
+        ids = []
         for war in self.wars:
-            nation = war[0]
-            for n in self.neighbourTiles:
-                neighbourNationID = self.getControllerId(n, tilesByNation)
-                if nation.id == neighbourNationID: # small check in case some nations lose and keep territory
-                    enemyNeighbours.append(n)
+            ids.append(war[0].id)
+
+        # then check if the tiles belong to any of them
+        for n in self.neighbourTiles:
+            neighbourNationID = self.getControllerId(n, tilesByNation)
+            if neighbourNationID in ids: # small check in case some nations lose and keep territory
+                enemyNeighbours.append(n)
+                enemyTileNeighbours = n.getNeighbours(tiles, len(tiles[0]), len(tiles))
+                
+                # checking if the tile is an enclave inside this nation's territory
+                # though I dislike having all of these loops :(
+                # and I'm not sure if this even works
+                isEnclave = True
+                for t in enemyNeighbours:
+                    if not self.isNationController(t, tilesByNation):
+                        isEnclave = False
+                        break
+                if isEnclave:
+                    self.focusedTiles.append(n)
+
         return enemyNeighbours
 
     # returns total maintenance, the total value, the average value, the biggest population and the average population in our controlled tiles
@@ -342,8 +362,8 @@ class Nation:
     # update's our nations max number of possible concurrent wars. More than this and the nation will take heavy penalties
     def updateMaxWars(self, controlledTiles):
         numTiles = len(controlledTiles)
-        self.personality.maxWars = MIN_WARS
-        self.personality.maxWars += (numTiles//WARS_STEP_VALUE) * WARS_STEP
+        self.maxWars = MIN_WARS
+        self.maxWars += (numTiles//WARS_STEP_VALUE) * WARS_STEP
 
     # what happens to the passed nation when its capital is conquered by this nation
     def conqueredCapital(self, nation, tiles, tilesByNation):
@@ -368,12 +388,11 @@ class Nation:
         winsBattle = ourChances > theirChances
         return winsBattle
 
-    #TODO
     # tries to conquer an enemy tile if we are at war with someone
     def makeAttack(self, tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing):
         numWars = len(self.wars)
         if numWars > 0:
-            enemyTiles = self.getEnemyNeighbours(tilesByNation, nations) #TODO
+            enemyTiles = self.getEnemyNeighbours(tiles, tilesByNation, nations)
             
             # will select some random Tiles from our enemies and select the closest to the capital
             # to avoid conquering tiles that are too far away from the main territory and avoid enclaves
@@ -381,14 +400,17 @@ class Nation:
                 distList = []
                 for i in range(n):
                     tileToConquer = random.choice(enemyTiles)
-                    distanceToCapital = sqrt((tileToConquer.x - self.capital.x)**2 + (tileToConquer.y - self.capital.y)**2)
+                    distanceToCapital = sqrt((tileToConquer.x - self.capital.x)**2 + (tileToConquer.y - self.capital.y)**2) # distance formula
                     distList.append((distanceToCapital, tileToConquer))
-                distList.sort(key=lambda x:x[0])
-                return distList[0][1]
+                distList.sort(key=lambda x:x[0]) # sort by distance to the capital
+                return distList[0][1] # return the closest to the capital
             
             if enemyTiles:
                 # choosing a random tile to attack
-                tileToConquer = chooseTile(3) # number of tiles to choose from
+                if self.focusedTiles: # if there are enclaves inside our territory or important tiles we need to conquer:
+                    tileToConquer = self.focusedTiles[0]
+                else: # if not, let's semi-randomly choose them
+                    tileToConquer = chooseTile(CONQUER_ACCURACY) # number of tiles to choose from
                 nationID = self.getControllerId(tileToConquer, tilesByNation)
                 nation = self.getNation(nations, nationID)
                 war = 0
@@ -442,7 +464,7 @@ class Nation:
 
         newWar = False # will be True if a new war is added, to avoid unnecessary looping
         # first we determine if we can declare war, and if so we see if we will do that
-        if self.money > WAR_COST and moneyDif > WAR_MAINTENANCE_RANGE[0] and numWars < self.personality.maxWars:
+        if self.money > WAR_COST and moneyDif > WAR_MAINTENANCE_RANGE[0] and numWars < self.maxWars:
             prob = random.randint(1,100)
             willDeclareWar = True if prob <= PROBABILITY_WAR_PER_TURN else False
             if willDeclareWar:
@@ -452,7 +474,7 @@ class Nation:
                         if neighbourNationID not in [self.id, 0]: # if True means it's a neighbour nation
                             #warNation = None
                             for nation in nations:
-                                if nation.id == neighbourNationID and numWars < self.personality.maxWars:
+                                if nation.id == neighbourNationID and numWars < self.maxWars:
                                     #warNation = nation
                                     self.wars.append([nation, self.returnNewWarBudget(moneyDif, nations, nation)])
                                     nation.wars.append([self, nation.returnNewWarBudget(moneyDif, nations, self)])
@@ -467,7 +489,7 @@ class Nation:
         if numWars > 0 and not newWar: # if it's not empty, len(self.wars) > 0
             numWars = len(self.wars)
             r = random.randint(1,100)
-            if (numWars > self.personality.maxWars or self.influence < 0 or self.money < 0) and numWars > 0:
+            if (numWars > self.maxWars or self.influence < 0 or self.money < 0) and numWars > 0:
                 if r <= PROBABILITY_ENDING_WAR_MAX:
                     randomWar = random.choice(self.wars)
                     self.endWar(randomWar[0])
@@ -667,7 +689,7 @@ class Nation:
                 printArrowMoney = "↑"
             if isInfluenceGrowing:
                 printArrowInf  = "↑"
-            print(f"num tiles: {len(controlledTiles)} | money {round(self.money)} {printArrowMoney} | inf {round(self.influence)} {printArrowInf} | wars {len(self.wars)}({self.personality.maxWars}) | ", end = "")
+            print(f"num tiles: {len(controlledTiles)} | money {round(self.money)} {printArrowMoney} | inf {round(self.influence)} {printArrowInf} | wars {len(self.wars)}({self.maxWars}) | ", end = "")
 
             # ------ THINGS THAT CONSUME ACTION POINTS
 
