@@ -446,8 +446,6 @@ class Nation:
             prob = random.randint(1,100)
             willDeclareWar = True if prob <= PROBABILITY_WAR_PER_TURN else False
             if willDeclareWar:
-                #TODO
-                # another loop :( I'll try to fix this if it consumes too much CPU
                 for tile in controlledTiles:
                     for n in tile.getNeighbours(tiles, len(tiles[0]), len(tiles)):
                         neighbourNationID = self.getControllerId(n, tilesByNation)
