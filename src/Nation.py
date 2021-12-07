@@ -27,10 +27,12 @@ class Nation:
         self.wars = wars # list of lists that contain the nations we are at war with and the war maintenance of each war
         self.maxWars = 0 # max number of wars a nation can participate in at a certain a moment
         self.focusedTiles = [] # list of tiles to make an attack on, so countries don't grow in random shapes
-        self.capital = 0 # contains the tile this country was first created in
+        self.capital = None # contains the tile this country was first created in
+        self.attackCenter = None # a tile from where attacks will "center" so countries don't just become round blobs
+        self.turnsWithNoChangeInAttackCenter = 0 # number of turns our tile in self.attackCenter hasn't changed
 
         self.lastInfluence = 0 # to track if the ifluence is growing or not
-        self.influence = 5
+        self.influence = 5 # current influence amount
 
         self.techLevel = 0 # max 10
         self.countryDev = 1 # testing purposes to decide our tech level
@@ -65,6 +67,7 @@ class Nation:
     # sets this nation's capital as the tile passed
     def setCapital(self, tile):
         self.capital = tile
+        self.attackCenter = tile
 
     # updates our current capital if it's not controlledByUs
     def updateCapital(self, controlledTiles, tilesByNation):
@@ -75,7 +78,7 @@ class Nation:
                 if tile.terrain.name not in noBeginningTerrains:
                     changedCapital = True
                     break
-            self.capital = tile
+            self.setCapital(tile)
             return changedCapital
 
     # prints the coords of a list of given tiles controlled by a nation
@@ -373,11 +376,17 @@ class Nation:
                     self.changeTileOwnership(self.getTileByCoords(tileCoords, tiles), tilesByNation)
                     self.influence -= self.personality.influenceCostToConquer
 
+    # return to monke
+    def disband(self, nation, tiles, tilesByNation):
+        for tileCoords in tilesByNation: # key are the tile coords, value is the id of the owner
+            if tilesByNation[tileCoords] == nation.id:
+                tilesByNation[tileCoords] = 0
+
     # determines the result of a battle between this nation and nation we are at war with in the passed war
     def doBattle(self, war):
         nation = war[0]
-        attackerRNG = random.randint(1, 6)
-        defenderRNG = random.randint(1, 6)
+        attackerRNG = random.randint(1, MAX_BATTLE_RNG)
+        defenderRNG = random.randint(1, MAX_BATTLE_RNG)
         attackerIronPerCapita = 0
         defenderIronPerCapita = 0
         if self.size > 0 and nation.size > 0: # having a lot of iron is important
@@ -400,15 +409,18 @@ class Nation:
                 distList = []
                 for i in range(n):
                     tileToConquer = random.choice(enemyTiles)
-                    distanceToCapital = sqrt((tileToConquer.x - self.capital.x)**2 + (tileToConquer.y - self.capital.y)**2) # distance formula
-                    distList.append((distanceToCapital, tileToConquer))
+                    distanceToAttackCenter = sqrt((tileToConquer.x - self.attackCenter.x)**2 + (tileToConquer.y - self.attackCenter.y)**2) # distance formula
+                    distList.append((distanceToAttackCenter, tileToConquer))
                 distList.sort(key=lambda x:x[0]) # sort by distance to the capital
                 return distList[0][1] # return the closest to the capital
             
             if enemyTiles:
                 # choosing a random tile to attack
                 if self.focusedTiles: # if there are enclaves inside our territory or important tiles we need to conquer:
-                    tileToConquer = self.focusedTiles[0]
+                    if not self.isNationController(self.focusedTiles[0], tilesByNation):
+                        tileToConquer = self.focusedTiles[0]
+                    else:
+                        self.focusedTiles.remove(self.focusedTiles[0])
                 else: # if not, let's semi-randomly choose them
                     tileToConquer = chooseTile(CONQUER_ACCURACY) # number of tiles to choose from
                 nationID = self.getControllerId(tileToConquer, tilesByNation)
@@ -440,9 +452,20 @@ class Nation:
                 for war in self.wars:
                     self.endWar(war[0])
     
+    # updates this nation's attack center and the turns required to change it
+    def updateAttackCenter(self, tiles, tilesByNation, controlledTiles):
+        self.turnsWithNoChangeInAttackCenter += 1 # update this variable
+        r = random.randint(1, 100)
+        if r <= self.turnsWithNoChangeInAttackCenter * 2 or not self.isNationController(self.attackCenter, tilesByNation):
+            if controlledTiles:
+                self.attackCenter = random.choice(controlledTiles)
+
     #TODO
     # updates wars and tries to conquer enemy tiles
     def updateStance(self, tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing):
+        
+        self.updateAttackCenter(tiles, tilesByNation, controlledTiles)
+        
         moneyDif = self.money - self.lastMoney
         numWars = len(self.wars)
         numTiles = len(controlledTiles)
@@ -663,11 +686,12 @@ class Nation:
                 self.tilesToDev.remove(tile)
 
     # removes this nation from the game if it controlls no tiles (i.e. they were conquered)
-    def checkExistence(self, nations, controlledTiles):
+    def checkExistence(self, nations, tiles, tilesByNation, controlledTiles):
         if len(controlledTiles) <= 0:
             print(f"{self.name} with id {self.id} was deleted because it had no tiles")
-            #nations.remove(self) # doesnt work
+            #nations.remove(self) # doesn't work
             self.wasEliminated = True
+            self.disband(self, tiles, tilesByNation)
 
     # makes a turn for this AI, called each turn for each AI/nation
     def makeTurn(self, tiles, nations, tilesByNation, turn):
@@ -726,7 +750,7 @@ class Nation:
             # declares wars on neighbours and tries to conquer their tiles
             self.updateStance(tiles, nations, tilesByNation, controlledTiles, isMoneyGrowing)
 
-            # updates our capital (in canse we lost ours)
+            # updates our capital (in case we lost ours)
             self.updateCapital(controlledTiles, tilesByNation)
 
             # Some of the resources will "rot" every turn, so nations don't accumulate infinite resources
@@ -740,7 +764,7 @@ class Nation:
             print(f"dev: {self.countryDev} | tech: {self.techLevel} | ", end = "")
 
             # check if the nation is still in the game
-            self.checkExistence(nations, controlledTiles)
+            self.checkExistence(nations, tiles, tilesByNation, controlledTiles)
 
     # I have to copy these functions to this class because I can't import Engine
     # There surely is a better way to do this

@@ -48,6 +48,7 @@ PROBABILITY_WAR_PER_TURN = 8 # probability out of 100 of a nation declaring war 
 WAR_MONEY_REWARD = 150 # amount of money a nation ears when it wins a war
 WAR_INFLUENCE_REWARD = 1500 # amount of influence a nation ears when it wins a war
 CONQUER_ACCURACY = 3 # number of tiles a nation will choose 1 from to attack. the higher the value the cleaner (and rounder) the borders
+MAX_BATTLE_RNG = 8 # a random number between 1 and this number will be chosen and added to both parties in a battle
 
 # personality and character related variables
 TURNS_TO_EXPAND = 10 # minimum num of turns necesseray without expanding (territory) to start expanding again
