@@ -63,36 +63,14 @@ class Character:
     # updates this character with either new stats or with death :( will also replace it in that case
     def update(self):
         self.age += 1 # increase the age
+        self.probabilityOfDying = 0 # starts at 0
 
-        # i tried to make it so that the probability of dying slowly increases as a character gets older
-        # but the numbers are a bit random, i put there what i felt was right xD
-        if self.age > 95:
-            self.probabilityOfDying = 500
-        if self.age > 90:
-            self.probabilityOfDying = 250
-        elif self.age > 85:
-            self.probabilityOfDying = 120
-        elif self.age > 80:
-            self.probabilityOfDying = 80
-        elif self.age > 75:
-            self.probabilityOfDying = 50
-        elif self.age > 70:
-            self.probabilityOfDying = 25
-        elif self.age > 65:
-            self.probabilityOfDying = 10
-        elif self.age > 60:
-            self.probabilityOfDying = 5
-        elif self.age > 55:
-            self.probabilityOfDying = 4
-        elif self.age > 50:
-            self.probabilityOfDying = 3
-        elif self.age > 45:
-            self.probabilityOfDying = 2
-        elif self.age > 40:
-            self.probabilityOfDying = 1
-        else:
-            self.probabilityOfDying = 0
-        
+        # add age-related death probability
+        for ageProbPar in AGE_PROBABILITIES_PAR:
+            if self.age > ageProbPar[0]:
+                self.probabilityOfDying = ageProbPar[1]
+                break
+
         # adding base death value
         self.probabilityOfDying += BASE_DEATH_VALUE # out of 100, base starting value for each year
 

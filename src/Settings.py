@@ -49,7 +49,7 @@ WAR_MONEY_REWARD = 150 # amount of money a nation ears when it wins a war
 WAR_INFLUENCE_REWARD = 1500 # amount of influence a nation ears when it wins a war
 CONQUER_ACCURACY = 3 # number of tiles a nation will choose 1 from to attack. the higher the value the cleaner (and rounder) the borders
 
-# personality related variables
+# personality and character related variables
 TURNS_TO_EXPAND = 10 # minimum num of turns necesseray without expanding (territory) to start expanding again
 PROBABILITY_AGGRESSIVE_EXPANSION = 5 # probability (out of 100) of a nation to start "aggressively expanding"
 PROBABILITY_AGGR_EXP_DEV_TILE = 3 # probability of a nation that's "aggressively expanding" to add a tile to its devTile list
@@ -59,6 +59,8 @@ MAX_DEV_TRIES = 10 # number of tries a nation will take to add a tile to its dev
 BASE_DEATH_VALUE = 2 # base probability of a nation's leader dying each year. will increase with age # out of 1000
 VITALITY_DEATH_PENALTY = 1 # extra probability of a leader dying when their vitality is too low # out of 1000
 VITALITY_DEATH_BONUS = 1 # bonus probability of a leader dying when their vitality is too high # out of 1000
+# list with pars of (age, death probability out of 1000 per year); the age must be in decreasing order.
+AGE_PROBABILITIES_PAR = [(95, 500), (90, 250), (85, 120), (80, 80), (75, 50), (70, 25), (65, 10), (60, 5), (55, 4), (50, 3), (45, 2), (40, 1)]
 
 # buildings related variables
 MAX_BUILDINGS_PER_TILE = 15 # max number of buildings a tile can have
