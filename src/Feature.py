@@ -1,16 +1,16 @@
 class Feature:
-    def __init__(self, name, rarity, resBonus, welBonus, lifeBonus, resBonus2, defBonus):
+    def __init__(self, name, rarity, res_bonus, wel_bonus, life_bonus, res_bonus2, def_bonus):
         self.name = name
         self.rarity = rarity
-        self.resBonus = resBonus # in percentage
-        self.welBonus = welBonus
-        self.lifeBonus = lifeBonus
-        self.foodBonus = resBonus2[0]
-        self.woodBonus = resBonus2[1]
-        self.stoneBonus = resBonus2[2]
-        self.ironBonus = resBonus2[3]
-        self.goldBonus = resBonus2[4]
-        self.defBonus = defBonus
+        self.res_bonus = res_bonus # in percentage
+        self.wel_bonus = wel_bonus
+        self.life_bonus = life_bonus
+        self.food_bonus = res_bonus2[0]
+        self.wood_bonus = res_bonus2[1]
+        self.stone_bonus = res_bonus2[2]
+        self.iron_bonus = res_bonus2[3]
+        self.gold_bonus = res_bonus2[4]
+        self.def_bonus = def_bonus
 
 # 0 rarity means it won't be picked on world creation
 

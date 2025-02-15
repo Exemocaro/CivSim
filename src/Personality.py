@@ -4,49 +4,49 @@ import random
 
 
 class Personality:
-    def __init__(self, name, phase, influenceCostToDev, influenceCostToConquer):
+    def __init__(self, name, phase, influence_cost_to_dev, influence_cost_to_conquer):
         self.name = name
         self.phase = phase # basically what they are doing now
-        self.influenceCostToConquer = influenceCostToConquer
-        self.influenceCostToDev = influenceCostToDev
+        self.influence_cost_to_conquer = influence_cost_to_conquer
+        self.influence_cost_to_dev = influence_cost_to_dev
 
-        self.maxWars = 0
+        self.max_wars = 0
 
-        self.updateValues()
+        self.update_values()
     
     # I need to organize these in a dict
     # updates the cost of influence to conquer a new tile
-    def updateInfluenceToConquer(self):
+    def update_influence_to_conquer(self):
         if self.phase == "aggressively-expanding":
-            self.influenceCostToConquer =  round(BASE_CONQUER_COST / 2, 2)
+            self.influence_cost_to_conquer =  round(BASE_CONQUER_COST / 2, 2)
         elif self.phase == "peacefully-expanding":
-            self.influenceCostToConquer =  round(BASE_CONQUER_COST)
+            self.influence_cost_to_conquer =  round(BASE_CONQUER_COST)
         elif self.phase == "developing":
-            self.influenceCostToConquer =  round(BASE_CONQUER_COST * 2)
+            self.influence_cost_to_conquer =  round(BASE_CONQUER_COST * 2)
     
     # updates the cost of influence to develop a tile of the AI's nation
-    def updateInfluenceToDev(self):
+    def update_influence_to_dev(self):
         if self.phase == "developing":
-            self.influenceCostToDev =  round(BASE_DEV_COST / 2, 2)
+            self.influence_cost_to_dev =  round(BASE_DEV_COST / 2, 2)
         elif self.phase == "peacefully-expanding":
-            self.influenceCostToDev =  round(BASE_DEV_COST)
+            self.influence_cost_to_dev =  round(BASE_DEV_COST)
         elif self.phase == "aggressively-expanding":
-            self.influenceCostToDev =  round(BASE_DEV_COST * 2)
+            self.influence_cost_to_dev =  round(BASE_DEV_COST * 2)
 
     # updates the maximum number of wars this nation can be at war with
-    #def updateMaxWars(self):
+    #def updatemax_wars(self):
     #    if self.phase == "developing":
-    #        self.maxWars =  round(MIN_WARS / 2, 2)
+    #        self.max_wars =  round(MIN_WARS / 2, 2)
     #    elif self.phase == "peacefully-expanding":
-    #        self.maxWars =  round(MIN_WARS)
+    #        self.max_wars =  round(MIN_WARS)
     #    elif self.phase == "aggressively-expanding":
-    #        self.maxWars =  round(MIN_WARS * 2)
+    #        self.max_wars =  round(MIN_WARS * 2)
 
     # giving intial values to the variables on our AI
-    def updateValues(self):
-        self.updateInfluenceToDev()
-        self.updateInfluenceToConquer()
-        #self.updateMaxWars()
+    def update_values(self):
+        self.update_influence_to_dev()
+        self.update_influence_to_conquer()
+        #self.updatemax_wars()
 
 # the values passed to dev and to conquer don't really matter as they are dinamically updated
 SIMPLE_PERSONALITIES = [

@@ -1,9 +1,9 @@
 class Resource:
-    def __init__(self, name, rarity, bonus, fixedVal):
+    def __init__(self, name, rarity, bonus, fixed_val):
         self.name = name
         self.rarity = rarity
         self.bonus = bonus # works as a percentage of total output
-        self.fixedVal = fixedVal # works as a fixed value produced by the province
+        self.fixed_val = fixed_val # works as a fixed value produced by the province
 
 # To add more and more mechanics
 # Rarities are probabilities and must sum to 100
@@ -20,4 +20,4 @@ WATER_RESOURCES = [
     Resource("Food(Wales)", 10, 1, 5),
 ]
 
-noResource = Resource("", 0, 0, 0)
+no_resource = Resource("", 0, 0, 0)

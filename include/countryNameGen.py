@@ -8,7 +8,7 @@ import os
 def get10CountryNames(names, session):
 
     #define our URL
-    url = 'https://www.fantasynamegenerators.com/kingdom-names.php'
+    url = 'https://www.fantasyname_generators.com/kingdom-names.php'
 
     #use the session to get the data
     r = session.get(url)

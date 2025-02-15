@@ -254,7 +254,7 @@ stems = [
 "urs",
 ]
 
-maleSuffixes = [
+male_suffixes = [
 "aex",
 "ae",
 "ar",
@@ -278,7 +278,7 @@ maleSuffixes = [
 "un",
 "us",
 ]
-femaleSuffixes = [
+female_suffixes = [
 "ae",
 "a",
 "aia",
@@ -292,11 +292,11 @@ femaleSuffixes = [
 ]
 
 # returns a random name given a gender
-def nameGen(gender = ""):
+def name_gen(gender = ""):
     if gender == "":
         gender = random.choice(["m", "f"])
     n = ""
-    gotStem = False
+    has_stem = False
 
     pre = random.choice(prefixes)
     n += pre
@@ -304,39 +304,38 @@ def nameGen(gender = ""):
 
     if len(pre) >= 4:
         if r == 10:
-            gotStem = True
+            has_stem = True
     else:
         if r >= 8:
-            gotStem = True
+            has_stem = True
 
-    if gotStem:
+    if has_stem:
         stem = random.choice(stems)
         while ('t' not in pre and 't' not in stem) and ('x' not in pre and 'x' not in stem and pre[0] != 'x'):
             stem = random.choice(stems)
         n += stem
 
     if gender == "m":
-        n += random.choice(maleSuffixes)
+        n += random.choice(male_suffixes)
     elif gender == "f":
-        n += random.choice(femaleSuffixes)
+        n += random.choice(female_suffixes)
     else:
         return "Error on gender"
 
-    finalName = ""
+    final_name = ""
     for c in n:
         if c == n[0]:
-            finalName += n[0].upper()
+            final_name += n[0].upper()
         else:
-            finalName += c
+            final_name += c
 
-    return finalName
+    return final_name
 
-# generates 300 random names based on the function nameGen(), use this to test the names and see if you like them!
-def generateNames():
-    numNames = 300
-    while numNames > 0:
-        print(f"Male Name: {nameGen('m')}.")
-        print(f"Female Name: {nameGen('f')}.")
-        numNames -= 1
+# generates 300 random names based on the function name_gen(), use this to test the names and see if you like them!
+def generate_names(num):
+    while num > 0:
+        print(f"Male Name: {name_gen('m')}.")
+        print(f"Female Name: {name_gen('f')}.")
+        num -= 1
 
 

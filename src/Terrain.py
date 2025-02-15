@@ -6,17 +6,17 @@ class Terrain:
         self.color = color
         self.features = features
         self.height = height
-        self.defenseValue = self.getDefenseValue()
+        self.defense_value = self.get_defense_value()
         if name == "Mountain":
-            self.defenseValue += 1
+            self.defense_value += 1
 
-    def getDefenseValue(self):
+    def get_defense_value(self):
         value = 0
         for feature in self.features:
-            value += feature.defBonus
+            value += feature.def_bonus
         return value
 
-    def showFeatures(self):
+    def show_features(self):
         value = ""
         for feature in self.features:
             if feature == self.features[-1]:
@@ -25,7 +25,7 @@ class Terrain:
                 value += f"{feature.name}; "
         return value
 
-    def getInfo(self):
+    def get_info(self):
         #hill = ""
         #forest = ""
         #if self.hills:
@@ -35,7 +35,7 @@ class Terrain:
         return (f"{self.name}")  #{hill}{forest}")
 
 #the colors to be used in pygame to represent each terrain
-nameColorPairs = { # in rgb
+name_color_pairs = { # in rgb
     "Plains" : (50, 205, 50),
     "Grassland" : (144, 238, 144),
     # special cases
@@ -48,7 +48,7 @@ nameColorPairs = { # in rgb
     "Highland" : (210, 180, 140),
 }
 
-nameLiferatingPairs = {
+name_liferating_pairs = {
     "Plains" : (5,9),
     "Grassland" : (5,9),
     # special cases
@@ -61,25 +61,25 @@ nameLiferatingPairs = {
     "Highland" : (4,8),
 }
 
-specialTerrains = ["Coast", "Desert", "Ocean", "Tundra", "Mountain", "Highland", "Ice"]
+special_terrains = ["Coast", "Desert", "Ocean", "Tundra", "Mountain", "Highland", "Ice"]
 
-waterTerrains = ["Coast", "Ocean", "Ice"]
+water_terrains = ["Coast", "Ocean", "Ice"]
 
-noResourceTerrains = ["Mountain", "Ocean", "Ice"]
+no_resource_terrains = ["Mountain", "Ocean", "Ice"]
 
-uncontrollableTerrains = ["Mountain", "Ocean", "Ice"]
+uncontrollable_terrains = ["Mountain", "Ocean", "Ice"]
 
-noBeginningTerrains = ["Mountain", "Ocean", "Coast", "Ice"]
+no_beginning_terrains = ["Mountain", "Ocean", "Coast", "Ice"]
 
-def getNormalTerrains():
+def get_normal_terrains():
     terrains = []
-    for tile in nameColorPairs:
-        if tile not in specialTerrains:
+    for tile in name_color_pairs:
+        if tile not in special_terrains:
             terrains.append(tile)
     return terrains
 
-def getAllTerrains():
+def get_all_terrains():
     terrains = []
-    for tile in nameColorPairs:
+    for tile in name_color_pairs:
         terrains.append(tile)
     return terrains

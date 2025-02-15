@@ -1,27 +1,27 @@
 from Settings import *
 
 class Building:
-    def __init__(self, name, level, moneyCost, influenceCost, moneyMaintenance, influenceMaintenance, resBonus, defBonus):
+    def __init__(self, name, level, money_cost, influence_cost, money_maintenance, influence_maintenance, res_bonus, def_bonus):
         self.name = name
         self.level = level
-        self.moneyCost = moneyCost
-        self.influenceCost = influenceCost
-        self.moneyMaintenance = moneyMaintenance
-        self.influenceMaintenance = influenceMaintenance
+        self.money_cost = money_cost
+        self.influence_cost = influence_cost
+        self.money_maintenance = money_maintenance
+        self.influence_maintenance = influence_maintenance
 
         # TODO
-        # resBonus increases the bonus on a fixed val
+        # res_bonus increases the bonus on a fixed val
         # I probably won't use this, but it will stay here for now
-        self.foodBonus = resBonus[0]
-        self.woodBonus = resBonus[1]
-        self.stoneBonus = resBonus[2]
-        self.ironBonus = resBonus[3]
-        self.goldBonus = resBonus[4]
-        self.defBonus = defBonus
+        self.food_bonus = res_bonus[0]
+        self.wood_bonus = res_bonus[1]
+        self.stone_bonus = res_bonus[2]
+        self.iron_bonus = res_bonus[3]
+        self.gold_bonus = res_bonus[4]
+        self.def_bonus = def_bonus
 
     # returns both the money maintenance and influence maintenance
-    def getMaintenance(self):
-        return (self.moneyMaintenance, self.influenceMaintenance)
+    def get_maintenance(self):
+        return (self.money_maintenance, self.influence_maintenance)
 
 # buildings will be distributed in levels, lvl1 buildings will cost the base amount, lvl 2 twice that amount, and so on
 # I made it like this to avoid looping through all the buildings to find an affordable one

@@ -8,5 +8,5 @@ class Timer:
     def restart(self):
         self.begin = time.time()
     
-    def getTimePassed(self):
+    def get_time_passed(self):
         return (time.time() - self.begin)

@@ -17,24 +17,24 @@ noise3 = PerlinNoise(octaves=12)
 noise4 = PerlinNoise(octaves=24)
 
 class Map:
-    def __init__(self, sizeX, sizeY, riverNum):
-        self.sizeX = sizeX
-        self.sizeY = sizeY
-        self.riverNum = riverNum # max number of rivers in the map
-        self.tiles = [[0 for i in range(self.sizeX)] for j in range(self.sizeY)]
+    def __init__(self, size_x, size_y, river_num):
+        self.size_x = size_x
+        self.size_y = size_y
+        self.river_num = river_num # max number of rivers in the map
+        self.tiles = [[0 for i in range(self.size_x)] for j in range(self.size_y)]
 
         # super ugly code, gotta make this more readable
-        self.top1 = sizeY - (sizeY * 12 // 100)
-        self.top2 = sizeY - (sizeY * 9 // 100)
-        self.top3 = sizeY - (sizeY * 6 // 100)
-        self.top4 = sizeY - (sizeY * 3 // 100)
-        self.bot1 = (sizeY * 12 // 100)
-        self.bot2 = (sizeY * 9 // 100)
-        self.bot3 = (sizeY * 6 // 100)
-        self.bot4 = (sizeY * 3 // 100)
+        self.top1 = size_y - (size_y * 12 // 100)
+        self.top2 = size_y - (size_y * 9 // 100)
+        self.top3 = size_y - (size_y * 6 // 100)
+        self.top4 = size_y - (size_y * 3 // 100)
+        self.bot1 = (size_y * 12 // 100)
+        self.bot2 = (size_y * 9 // 100)
+        self.bot3 = (size_y * 6 // 100)
+        self.bot4 = (size_y * 3 // 100)
 
     # chooses the resource for a tile given its terrain
-    def weightChooser(self, list, rarities):     
+    def weight_chooser(self, list, rarities):     
         weights = []
         sum = 0
         for r in rarities:
@@ -50,35 +50,35 @@ class Map:
             if selection < count:
                 return list[i]
 
-        return self.weightChooser(list, rarities)
+        return self.weight_chooser(list, rarities)
 
     # chooses the resource for a tile given its terrain
-    def chooseResource(self, terrain):
+    def choose_resource(self, terrain):
         name = terrain.name
         resources = LAND_RESOURCES
 
-        if name in noResourceTerrains:
-            return noResource
-        if name in waterTerrains:
+        if name in no_resource_terrains:
+            return no_resource
+        if name in water_terrains:
             r = random.randint(0,5) # 1 in 6
             if r == 0:
                 resources = WATER_RESOURCES
             else:
-                return noResource
+                return no_resource
         
         rarities = []
         for r in resources:
             rarities.append(r.rarity)
-        return self.weightChooser(resources, rarities)
+        return self.weight_chooser(resources, rarities)
     
     # chooses terrain for a specific tile using perlin noise
-    def chooseTerrain(self, x, y):
+    def choose_terrain(self, x, y):
         name = "Ocean"
         features = []
 
-        hasHills = 0
-        hasForest = 0
-        hasBigForest = 0
+        has_hills = 0
+        has_forest = 0
+        has_big_forest = 0
 
         noise_val1 =         noise1([x*NOISE_SCALE, y*NOISE_SCALE])
         noise_val1 += 0.5  * noise2([x*NOISE_SCALE, y*NOISE_SCALE])
@@ -87,28 +87,28 @@ class Map:
         
         if noise_val1 > 0.5:
             name = "Mountain"
-            hasHills = 1
-            hasForest = 0
+            has_hills = 1
+            has_forest = 0
         elif noise_val1 > 0.3:
-            name = random.choice(getNormalTerrains())
-            hillsProb = random.randint(0,2)
-            if hillsProb == 0:
-                hasHills = 1
-            forestProb = random.randint(0,5)
-            if forestProb == 0:
-                hasForest = 1
+            name = random.choice(get_normal_terrains())
+            hills_prob = random.randint(0,2)
+            if hills_prob == 0:
+                has_hills = 1
+            forest_prob = random.randint(0,5)
+            if forest_prob == 0:
+                has_forest = 1
         elif noise_val1 > 0: 
-            name = random.choice(getNormalTerrains())
-            hillsProb = random.randint(0,5)
-            if hillsProb == 0:
-                hasHills = 1
-            forestProb = random.randint(0,1)
-            if forestProb == 0:
-                hasForest = 1
+            name = random.choice(get_normal_terrains())
+            hills_prob = random.randint(0,5)
+            if hills_prob == 0:
+                has_hills = 1
+            forest_prob = random.randint(0,1)
+            if forest_prob == 0:
+                has_forest = 1
             else:
-                forestProb = random.randint(0,9)
-                if forestProb == 0:
-                    hasBigForest = 1
+                forest_prob = random.randint(0,9)
+                if forest_prob == 0:
+                    has_big_forest = 1
         elif noise_val1 > -0.12:
             name = "Coast"
 
@@ -123,12 +123,12 @@ class Map:
             if r == 0:
                 name = "Highland"
 
-        if y >= self.sizeY - 1 or y <= 1:
+        if y >= self.size_y - 1 or y <= 1:
             if noise_val1 < 0:
                 name = "Ice"
             else:
                 name = "Tundra"
-        elif y >= self.sizeY - 2 or y <= 2:
+        elif y >= self.size_y - 2 or y <= 2:
             r = random.randint(0,4)
             if r <= 3:
                 if noise_val1 < 0:
@@ -171,35 +171,35 @@ class Map:
                 else:
                     name = "Tundra"
         
-        color = nameColorPairs[name]
+        color = name_color_pairs[name]
         
         # Choosing other features:
-        if hasHills:
+        if has_hills:
             features.append(hills)
-        if hasBigForest:
-            hasForest = 0
+        if has_big_forest:
+            has_forest = 0
             features.append(bigForest)
-        if hasForest:
+        if has_forest:
             features.append(forest)
         
         if len(features) < 2:
             prob = random.randint(1,6)
             if prob == 1:
                 rarities = []
-                if name not in waterTerrains and name != "Mountain":
+                if name not in water_terrains and name != "Mountain":
                     for f in LAND_FEATURES:
                         rarities.append(f.rarity)
-                    features.append(self.weightChooser(LAND_FEATURES, rarities))
+                    features.append(self.weight_chooser(LAND_FEATURES, rarities))
                 elif name == "Coast":
                     for f in WATER_FEATURES:
                         rarities.append(f.rarity)
-                    features.append(self.weightChooser(WATER_FEATURES, rarities))
+                    features.append(self.weight_chooser(WATER_FEATURES, rarities))
 
         return Terrain(name, color, features, noise_val1)
 
     # chooses wealth for a tile given its terrain
-    def chooseWealth(self, terrain, res):
-        if terrain.name in waterTerrains and res.name == "":
+    def choose_wealth(self, terrain, res):
+        if terrain.name in water_terrains and res.name == "":
             return 0
         elif terrain.name == "Mountain": # inhabitable
             return 0
@@ -208,15 +208,15 @@ class Map:
         return w
 
     # chooses liferating for a tile given its terrain
-    def chooseLiferating(self, terrain):
-        min = nameLiferatingPairs[terrain.name][0]
-        max = nameLiferatingPairs[terrain.name][1]
+    def choose_liferating(self, terrain):
+        min = name_liferating_pairs[terrain.name][0]
+        max = name_liferating_pairs[terrain.name][1]
         lf = random.randint(min, max)
         return lf
 
     # chooses the population for a tile given its terrain
-    def choosePopulation(self, terrain):
-        if terrain.name in waterTerrains:
+    def choose_population(self, terrain):
+        if terrain.name in water_terrains:
             return 0
         elif terrain.name == "Mountain": # inhabitable
             return 0
@@ -225,41 +225,41 @@ class Map:
         return p
 
     # generates the tiles
-    def genTiles(self):
+    def gen_tiles(self):
         i = 0
-        #print(f"sizeY:{self.sizeY} sizeX:{self.sizeX}")
-        for y in range(self.sizeY):
-            for x in range(self.sizeX):
+        #print(f"size_y:{self.size_y} size_x:{self.size_x}")
+        for y in range(self.size_y):
+            for x in range(self.size_x):
                 name = f"Number {i}"
-                ldr = Character.getRandomCharacter() # leader
-                terrain = self.chooseTerrain(x, y)
-                pop = self.choosePopulation(terrain)
-                res =  self.chooseResource(terrain)
-                wlth = self.chooseWealth(terrain, res)
-                lifer = self.chooseLiferating(terrain)
+                ldr = Character.get_random_character() # leader
+                terrain = self.choose_terrain(x, y)
+                pop = self.choose_population(terrain)
+                res =  self.choose_resource(terrain)
+                wlth = self.choose_wealth(terrain, res)
+                lifer = self.choose_liferating(terrain)
                 mods = {"dev":0, "rev":0}
                 #print(f"y:{y} x:{x}")
                 self.tiles[y][x] = (Tile(i, name, x, y, ldr, terrain, pop, res, wlth, lifer, mods))
                 i += 1
 
         # to clear random values on creation
-        for y in range(self.sizeY):
-            for x in range(self.sizeX):
-                self.tiles[y][x].updateValues()
+        for y in range(self.size_y):
+            for x in range(self.size_x):
+                self.tiles[y][x].update_values()
 
     # generates the rivers for this map
     # TODO, some rivers are too close to each other, I want to spread them out more
-    def genRivers(self):
+    def gen_rivers(self):
         print("Generating rivers...")
 
-        nR = self.riverNum # number of rivers
-        riverHeight = 0.80 # starting height to search on tiles to make the first rivers, keeps decreasing
+        river_num= self.river_num # number of rivers
+        river_height = 0.80 # starting height to search on tiles to make the first rivers, keeps decreasing
         n = 1
-        while nR > 0:
+        while river_num> 0:
             row = random.choice(self.tiles) # chooses a random row of the map
             tile = random.choice(row) # chooses a random tile from the row
-            if tile.terrain.height >= riverHeight and river not in tile.terrain.features:
-                nR -= 1
+            if tile.terrain.height >= river_height and river not in tile.terrain.features:
+                river_num-= 1
                 # while the river hasn't reach the sea
                 while(tile.terrain.height > 0):
                     n = 1
@@ -269,17 +269,17 @@ class Map:
                         tile.terrain.features.append(river)
 
                     # searches in the tile's neighbours for the one with the smallest height and the seond smallest height 
-                    neighbours = tile.getNeighbours(self.tiles, self.sizeX, self.sizeY)
+                    neighbours = tile.get_neighbours(self.tiles, self.size_x, self.size_y)
                     smallest = neighbours[0]
-                    secondSmallest = neighbours[1]
+                    second_smallest = neighbours[1]
                     for neighbour in neighbours:
                         if neighbour.terrain.height < smallest.terrain.height:
-                            secondSmallest = smallest
+                            second_smallest = smallest
                             smallest = neighbour
                     
                     # to avoid infinite loops
                     if river in smallest.terrain.features and n == 1:
-                        smallest = secondSmallest
+                        smallest = second_smallest
                         n += 1
                     if river in smallest.terrain.features and n == 2:
                         smallest = random.choice(neighbours)
@@ -298,17 +298,17 @@ class Map:
 
                     tile = smallest
             else:
-                riverHeight -= 0.0005
-                #print(f"Height: {round(riverHeight, 2)}, Rivers Generated: {self.riverNum - nR}")
-                if riverHeight < 0.05:
-                    nR = 0
+                river_height -= 0.0005
+                #print(f"Height: {round(river_height, 2)}, Rivers Generated: {self.river_num - nR}")
+                if river_height < 0.05:
+                    river_num= 0
                     break
 
     # creates map, will add more things here later
-    def createMap(self):
+    def create_map(self):
         print("Generating tiles...")
-        self.genTiles()
-        self.genRivers()
+        self.gen_tiles()
+        self.gen_rivers()
     
     # prints tiles with coords on console, for testing purposes
     """ def printMapCoords(self):
@@ -329,5 +329,5 @@ class Map:
             lastY = tile.y """
     
     # returns a tile on given coords
-    def findTile(self, coords):
+    def find_tile(self, coords):
         return self.tiles[coords[1]][coords[0]]

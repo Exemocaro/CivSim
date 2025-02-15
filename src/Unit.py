@@ -2,7 +2,7 @@
 # I'll just leave this here until I figure it out.
 
 class Unit:
-    def __init__(self, id, name, size, attack, defense, x, y, ownerID, leader):
+    def __init__(self, id, name, size, attack, defense, x, y, owner_id, leader):
         self.id = id
         self.name = name
         self.size = size
@@ -10,6 +10,6 @@ class Unit:
         self.defense = defense
         self.x = x
         self.y = y
-        self.ownerID = ownerID
+        self.owner_id = owner_id
         self.commander = leader
 

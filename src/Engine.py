@@ -9,7 +9,7 @@ import random
 
 class Engine:
     
-    def __init__(self, map, height, width, tileSize, numPlayers, color = ""):
+    def __init__(self, map, height, width, tile_size, numPlayers, color = ""):
 
         #Initialize pygame
         pygame.init()
@@ -37,13 +37,13 @@ class Engine:
         }
 
         # the number of tiles in x and y
-        self.sizeX = width / tileSize
-        self.sizeY = height / tileSize
+        self.size_x = width / tile_size
+        self.size_y = height / tile_size
 
         self.map = map # the game map
         self.nations = [] # each nation of the game
         #self.playerColor = color # will be used later
-        self.tileSize = tileSize # the size of each tile
+        self.tile_size = tile_size # the size of each tile
         self.tilesByNation = {} # stores each tile coords and it's owner's id, if it has no owner then the id will be 0
         self.numPlayers = numPlayers # the total number of players
 
@@ -105,11 +105,11 @@ class Engine:
             for x in range(len(self.map.tiles[0])):
                 tile = self.map.tiles[y][x]
                 color = pygame.Color(tile.terrain.color)
-                pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tileSize, y*self.tileSize, self.tileSize, self.tileSize))
+                pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size))
                 if hills in tile.terrain.features:
-                    fstP = [x*self.tileSize + 1, y*self.tileSize + self.tileSize - 1]
-                    sndP = [x*self.tileSize + self.tileSize - 1, y*self.tileSize + self.tileSize - 1]
-                    trdP = [x*self.tileSize + (self.tileSize // 2), y*self.tileSize - 1]
+                    fstP = [x*self.tile_size + 1, y*self.tile_size + self.tile_size - 1]
+                    sndP = [x*self.tile_size + self.tile_size - 1, y*self.tile_size + self.tile_size - 1]
+                    trdP = [x*self.tile_size + (self.tile_size // 2), y*self.tile_size - 1]
                     pygame.draw.polygon(self.screen, BLACK, [fstP, sndP, trdP], 1)
 
     # draws rivers above the normal terrain map
@@ -118,13 +118,13 @@ class Engine:
             for x in range(len(self.map.tiles[0])):
                 tile = self.map.tiles[y][x]
                 color = pygame.Color(tile.terrain.color)
-                pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tileSize, y*self.tileSize, self.tileSize, self.tileSize))
+                pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size))
                 if river in tile.terrain.features:
-                    pygame.draw.rect(self.screen, RIVER_COLOR, pygame.Rect(x*self.tileSize, y*self.tileSize, self.tileSize, self.tileSize))
+                    pygame.draw.rect(self.screen, RIVER_COLOR, pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size))
                 if hills in tile.terrain.features:
-                    fstP = [x*self.tileSize + 1, y*self.tileSize + self.tileSize - 1]
-                    sndP = [x*self.tileSize + self.tileSize - 1, y*self.tileSize + self.tileSize - 1]
-                    trdP = [x*self.tileSize + (self.tileSize // 2), y*self.tileSize - 1]
+                    fstP = [x*self.tile_size + 1, y*self.tile_size + self.tile_size - 1]
+                    sndP = [x*self.tile_size + self.tile_size - 1, y*self.tile_size + self.tile_size - 1]
+                    trdP = [x*self.tile_size + (self.tile_size // 2), y*self.tile_size - 1]
                     pygame.draw.polygon(self.screen, BLACK, [fstP, sndP, trdP], 1)
 
     # draws the map on the screen based on political entities
@@ -144,20 +144,20 @@ class Engine:
                     color1 = (nation.color[0], nation.color[1], nation.color[2], self.politicalAlphaValue)
                 color = self.blendColors(color1, colorTerrain) if nation.id != 0 else colorTerrain
 
-                pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tileSize, y*self.tileSize, self.tileSize, self.tileSize))
+                pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size))
             
                 if hills in tile.terrain.features:
-                    fstP = [x*self.tileSize + 1, y*self.tileSize + self.tileSize - 1]
-                    sndP = [x*self.tileSize + self.tileSize - 1, y*self.tileSize + self.tileSize - 1]
-                    trdP = [x*self.tileSize + (self.tileSize // 2), y*self.tileSize - 1]
+                    fstP = [x*self.tile_size + 1, y*self.tile_size + self.tile_size - 1]
+                    sndP = [x*self.tile_size + self.tile_size - 1, y*self.tile_size + self.tile_size - 1]
+                    trdP = [x*self.tile_size + (self.tile_size // 2), y*self.tile_size - 1]
                     pygame.draw.polygon(self.screen, BLACK, [fstP, sndP, trdP], 1)
 
                 # drawing the capital
                 if nation.capital == tile:
-                    fstP = [x*self.tileSize, y*self.tileSize + self.tileSize / 2]
-                    sndP = [x*self.tileSize + self.tileSize, y*self.tileSize + self.tileSize / 2]
+                    fstP = [x*self.tile_size, y*self.tile_size + self.tile_size / 2]
+                    sndP = [x*self.tile_size + self.tile_size, y*self.tile_size + self.tile_size / 2]
                     #pygame.draw.polygon(self.screen, CAPITAL_COLOR, [fstP, sndP], 1)
-                    pygame.draw.circle(self.screen, CAPITAL_COLOR, (x*self.tileSize + self.tileSize / 2, y*self.tileSize + self.tileSize / 2), self.tileSize / 2 - 1)
+                    pygame.draw.circle(self.screen, CAPITAL_COLOR, (x*self.tile_size + self.tile_size / 2, y*self.tile_size + self.tile_size / 2), self.tile_size / 2 - 1)
 
     # draws the map on the screen based on population values of each tile
     def drawMapPopulation(self):
@@ -173,10 +173,10 @@ class Engine:
                 tile = self.map.tiles[y][x]
                 if tile.population > 0:
                     color = (0, 250 * tile.population // biggest + 5, 0)
-                    pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tileSize, y*self.tileSize, self.tileSize, self.tileSize))
+                    pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size))
                 else:
                     color = pygame.Color(tile.terrain.color)
-                    pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tileSize, y*self.tileSize, self.tileSize, self.tileSize))
+                    pygame.draw.rect(self.screen, color, pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size))
 
     # neat function I made xD
     def drawMap(self):
@@ -239,7 +239,7 @@ class Engine:
     # prints info on a tile to the console
     def printStats(self, tile):
         print("---------------------------------")
-        tile.printInfo(self.getController(tile))
+        tile.print_info(self.getController(tile))
 
     # change the game velocity
     def changeVel(self):
@@ -254,11 +254,11 @@ class Engine:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     location = pygame.mouse.get_pos() #(x,y) do rato
-                    col = location[0] // self.tileSize
-                    row = location[1] // self.tileSize
-                    if col < self.sizeX and row < self.sizeY: #clicked outside the box
+                    col = location[0] // self.tile_size
+                    row = location[1] // self.tile_size
+                    if col < self.size_x and row < self.size_y: #clicked outside the box
                         squareSelected = (col, row) # x and y
-                        tile = self.map.findTile(squareSelected)
+                        tile = self.map.find_tile(squareSelected)
                         return tile
 
     # These two functions will match a tile id with a nation id
@@ -286,7 +286,7 @@ class Engine:
         # Before game logic
         for y in range(len(self.map.tiles)):
             for x in range(len(self.map.tiles[0])):
-                self.map.tiles[y][x].setProduction()
+                self.map.tiles[y][x].set_production()
         
         # Spawn nations
 
@@ -301,8 +301,8 @@ class Engine:
         # Normal nations
         for i in range(self.numPlayers):
             tile = self.map.tiles[random.randint(1, len(self.map.tiles) - 1)][random.randint(1, len(self.map.tiles[0]) - 1)]
-            while tile.terrain.name in noBeginningTerrains or self.tilesByNation[tile.coords] != 0:
-                tile = self.map.tiles[random.randint(4, self.map.sizeY - 4)][random.randint(4, self.map.sizeY - 4)]
+            while tile.terrain.name in no_beginning_terrains or self.tilesByNation[tile.coords] != 0:
+                tile = self.map.tiles[random.randint(4, self.map.size_y - 4)][random.randint(4, self.map.size_y - 4)]
 
             # Create a new nation on the random tile
             id = len(self.nations)
@@ -333,16 +333,16 @@ class Engine:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     
                     location = pygame.mouse.get_pos() # mouses' (x,y)
-                    col = location[0] // self.tileSize
-                    row = location[1] // self.tileSize
+                    col = location[0] // self.tile_size
+                    row = location[1] // self.tile_size
                     #if squareSelected == (): 
-                    #    tile = self.map.findTile((0,0))
-                    if col < self.sizeX and row < self.sizeY: #clicked outside the box
+                    #    tile = self.map.find_tile((0,0))
+                    if col < self.size_x and row < self.size_y: #clicked outside the box
                         squareSelected = (col, row) # x and y
-                        tile = self.map.findTile(squareSelected)
+                        tile = self.map.find_tile(squareSelected)
 
                         #self.printStats(tile)
-                        self.updateTexts(tile.getInfo(self.getController(tile)))
+                        self.updateTexts(tile.get_info(self.getController(tile)))
 
                         # print some nation information on the terminal
                         controller = self.getController(tile)
@@ -362,7 +362,7 @@ class Engine:
 
                     # button logic:
                     # velocityButton
-                    if self.velButton.isOver(location):
+                    if self.velButton.is_over(location):
                         self.changeVel()
                         if self.velocity != 0:
                             self.velButton.text = ">" * self.velocity
@@ -370,7 +370,7 @@ class Engine:
                             self.velButton.text = "||"
 
                     # placeNationButton
-                    if self.nationButton.isOver(location):
+                    if self.nationButton.is_over(location):
                         id = len(self.nations)
                         n = Nation.getNewNation(id)
                         
@@ -396,16 +396,16 @@ class Engine:
 
                     # right buttons
                     for button in self.rightButtons:
-                        if button.isOver(location):
+                        if button.is_over(location):
                             self.currentMap = button.info
 
             # Game logic
             # 1 in-game day, may change it
             if self.velocity != 0:
-                if self.timer.getTimePassed()>=1/(GAME_SPEED * self.velocity):
+                if self.timer.get_time_passed()>=1/(GAME_SPEED * self.velocity):
                     self.turn += 1 # updating the turn
 
-                    if tile: self.updateTexts(tile.getInfo(self.getController(tile))) # updating the on-scren text 
+                    if tile: self.updateTexts(tile.get_info(self.getController(tile))) # updating the on-scren text 
 
                     print(f"---- Starting turn {self.turn} ----")
                     for nation in self.nations:

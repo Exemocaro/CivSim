@@ -112,7 +112,7 @@ SMALL_FONT = ("../fonts/LEMONMILK-Regular.otf", 20)
 KINGDOM_NAMES_FILE = "../data/kingdomNames.txt"
 LOG_FILE = "logs/logs.log"
 
-# (X, Y, tileSize, number_of_rivers)
+# (X, Y, tile_size, number_of_rivers)
 MAP_SIZES = {
     "huge" : (240, 150, 6, 110),
     "large" : (180, 110, 8, 90),
