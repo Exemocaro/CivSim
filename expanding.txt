@@ -1,5 +1,5 @@
 known bugs/problems:
--big nations tend to slow the game down. the bigger the slower the game gets; that has to do with the way each nation gets their "neighbourTiles". Will be fixed asap
+-big nations tend to slow the game down. the bigger the slower the game gets; that has to do with the way each nation gets their "neighbour_tiles". Will be fixed asap
 -for resolutions smaller than 1080p the window won't fit into the screen. You'll need to manually decrease the map size and the window text size.
 
 The main uses of Money are:

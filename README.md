@@ -32,7 +32,7 @@ python CivSim.py # for Windows
 ```
 
 ## Notes
-The code can be messy sometimes because I had no specific objective in mind when first writing the code, and I changed my mind a lot of times when deciding what some functions should do and how the game's mechanics works.
+The code can be messy sometimes because I had no specific objective in min_d when first writing the code, and I changed my min_d a lot of times when deciding what some functions should do and how the game's mechanics works.
 
-It works fine on 1080p, but keep in mind that for smaller resolutions you'll have to decrease the size of the map and the UI.
+It works fine on 1080p, but keep in min_d that for smaller resolutions you'll have to decrease the size of the map and the UI.
 For now the recommended map size is "small", but I'll try to make the game faster and improve the AI, if I'm not too lazy :)))

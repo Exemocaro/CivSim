@@ -293,7 +293,7 @@ class Tile:
         info.append(f"Value: {self.value}")
         info.append(self.production_to_string())
         info.append(f"Tax Revenue: {self.tax_revenue}")
-        info.append(f"Technology level: {nation.techLevel}")
+        info.append(f"Technology level: {nation.tech_level}")
         info.append(f"Actions left: {nation.actions}")
         info.append(f"{nation.leader.representation}")
         info.append(f"{nation.leader.get_values()}")

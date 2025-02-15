@@ -44,7 +44,7 @@ class Engine:
         self.nations = [] # each nation of the game
         #self.playerColor = color # will be used later
         self.tile_size = tile_size # the size of each tile
-        self.tilesByNation = {} # stores each tile coords and it's owner's id, if it has no owner then the id will be 0
+        self.tiles_by_nation = {} # stores each tile coords and it's owner's id, if it has no owner then the id will be 0
         self.numPlayers = numPlayers # the total number of players
 
         # the alpha value used when mixing colors to show the political map 
@@ -135,7 +135,7 @@ class Engine:
             for x in range(len(self.map.tiles[0])):
                 tile = self.map.tiles[y][x]
                 colorTerrain = tile.terrain.color
-                nation = self.nations[self.tilesByNation[tile.coords]]
+                nation = self.nations[self.tiles_by_nation[tile.coords]]
 
                 # selecting the color for this nation and checking if it's selected
                 if self.selectedNation == nation.id:
@@ -215,12 +215,12 @@ class Engine:
     # returns the controller of a given tile
     def getController(self, tile):
         for nation in self.nations:
-            if self.isNationController(nation, tile):
+            if self.is_nation_controller(nation, tile):
                 return nation
-        return emptyNation
+        return empty_nation
 
     # will have to stay here so the performance goes up
-    def isNationController(self, nation, tile):
+    def is_nation_controller(self, nation, tile):
         if nation.id == self.find(tile.coords):
             return True
         return False
@@ -262,12 +262,12 @@ class Engine:
                         return tile
 
     # These two functions will match a tile id with a nation id
-    def find(self, tileCoords):
-        return self.tilesByNation[tileCoords]
+    def find(self, tile_coords):
+        return self.tiles_by_nation[tile_coords]
 
-    # adds a controller to a certain tile inside the tilesByNation dict
-    def addItem(self, tileCoords, controllerId):
-        self.tilesByNation[tileCoords] = controllerId
+    # adds a controller to a certain tile inside the tiles_by_nation dict
+    def addItem(self, tile_coords, controllerId):
+        self.tiles_by_nation[tile_coords] = controllerId
 
     # updates the id stored on self.selectedNation
     def updateSelectedNation(self, controller):
@@ -295,26 +295,26 @@ class Engine:
         for y in range(len(self.map.tiles)):
             for x in range(len(self.map.tiles[0])):
                 tile = self.map.tiles[y][x]
-                self.addItem(tile.coords, emptyNation.id)
-        self.nations.append(emptyNation)
+                self.addItem(tile.coords, empty_nation.id)
+        self.nations.append(empty_nation)
 
         # Normal nations
         for i in range(self.numPlayers):
             tile = self.map.tiles[random.randint(1, len(self.map.tiles) - 1)][random.randint(1, len(self.map.tiles[0]) - 1)]
-            while tile.terrain.name in no_beginning_terrains or self.tilesByNation[tile.coords] != 0:
+            while tile.terrain.name in no_beginning_terrains or self.tiles_by_nation[tile.coords] != 0:
                 tile = self.map.tiles[random.randint(4, self.map.size_y - 4)][random.randint(4, self.map.size_y - 4)]
 
             # Create a new nation on the random tile
             id = len(self.nations)
-            n = Nation.getNewNation(id)
-            n.changeTileOwnership(tile, self.tilesByNation)
-            n.setCapital(tile)
+            n = Nation.get_new_nation(id)
+            n.change_tile_ownership(tile, self.tiles_by_nation)
+            n.set_capital(tile)
             self.nations.append(n)
             #print(f"Created nation with: id:{id} name:{n.name}") # for testing only basically
 
         print("Generation complete")
         tile = None # reset the value of "tile"
-        #print(f"Name: {self.nations[0].name} | Representation: {self.nations[0].representation} | Controlled Tiles: {len(self.nations[0].controlledTiles)}")
+        #print(f"Name: {self.nations[0].name} | Representation: {self.nations[0].representation} | Controlled Tiles: {len(self.nations[0].controlled_tiles)}")
 
         # the main game loop
         while running:
@@ -350,15 +350,15 @@ class Engine:
                         print(f"\nClicked coords (x, y): ({col}, {row})")
                         print(f"Tile (x, y): {tile.coords}")
                         print(f"Controller: {controller.id} | {controller.representation}")
-                        print(f"Resources: {controller.resourcesToString()}")
+                        print(f"Resources: {controller.resources_to_string()}")
                         print(f"Phase: {controller.personality.phase}")
                         print(f"Wars: {controller.wars}")
-                        print(f"Tiles to Develop: {controller.printTiles(controller.tilesToDev)}")
-                        print(f"Number of Buildings: {controller.numBuildings}")
-                        print(f"Technology level: {controller.techLevel}")
+                        print(f"Tiles to Develop: {controller.print_tiles(controller.tiles_to_dev)}")
+                        print(f"Number of Buildings: {controller.num_buildings}")
+                        print(f"Technology level: {controller.tech_level}")
                         print(f"Actions left: {controller.actions}")
-                        print(f"Money: {controller.money} ({controller.money - controller.lastMoney})")
-                        print(f"Influence: {controller.influence} ({controller.influence - controller.lastInfluence})")
+                        print(f"Money: {controller.money} ({controller.money - controller.last_money})")
+                        print(f"Influence: {controller.influence} ({controller.influence - controller.last_influence})")
 
                     # button logic:
                     # velocityButton
@@ -372,7 +372,7 @@ class Engine:
                     # placeNationButton
                     if self.nationButton.is_over(location):
                         id = len(self.nations)
-                        n = Nation.getNewNation(id)
+                        n = Nation.get_new_nation(id)
                         
                         lastVel = self.velocity if self.velocity != 0 else lastVel
                         self.velocity = 0
@@ -386,8 +386,8 @@ class Engine:
                         pygame.display.flip()
 
                         newTile = self.waitForTileInput()
-                        n.changeTileOwnership(newTile, self.tilesByNation)
-                        n.setCapital(newTile)
+                        n.change_tile_ownership(newTile, self.tiles_by_nation)
+                        n.set_capital(newTile)
 
                         self.updateTexts(["", "", "Done!", "A new nation was born!"])
                         self.nations.append(n)
@@ -413,7 +413,7 @@ class Engine:
                         #    nation.influence -= 300000
                         if nation.id != 0:
                             print(f"starting turn id: {nation.id} | ", end = "")
-                            nation.makeTurn(self.map.tiles, self.nations, self.tilesByNation, self.turn)
+                            nation.make_turn(self.map.tiles, self.nations, self.tiles_by_nation, self.turn)
                             print("turn end")
                         else:
                             print("skipping turn; neutral nation; id == 0")
