@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "civsim"
+version = "0.1.0"
+description = "A Python/Pygame civilization simulation"
+requires-python = ">=3.12"
+dependencies = [
+    "pygame>=2.6",
+    "perlin-noise>=1.13",
+]
+
+[project.scripts]
+civsim = "civsim.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=3.7",
+    "mypy>=1.10",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["civsim"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+    "E501",  # line too long — let ruff-format handle it
+]
+
+[tool.ruff.lint.per-file-ignores]
+"civsim/settings.py" = ["E501"]  # long constant definitions are fine
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
