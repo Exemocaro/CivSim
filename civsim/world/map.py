@@ -48,7 +48,7 @@ class Map:
         self.size_x = size_x
         self.size_y = size_y
         self.river_num = river_num
-        self.tiles: list[list[Tile]] = [[None for _ in range(size_x)] for _ in range(size_y)]  # type: ignore[list-item]
+        self.tiles: list[list[Tile]] = [[None for _ in range(size_x)] for _ in range(size_y)]  # type: ignore[misc]
 
         # Pre-compute latitude band boundaries used for polar terrain
         self.top1 = size_y - (size_y * 12 // 100)
@@ -65,14 +65,14 @@ class Map:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def weight_chooser(items: list, rarities: list[int]):  # type: ignore[type-arg]
+    def weight_chooser(items: list, rarities: list[int]):
         """Return a random element from *items* weighted by *rarities*."""
         total = sum(rarities)
         if total == 0:
             raise ValueError("weight_chooser: all rarities are 0")
         selection = random.randint(1, total)
         count = 0
-        for item, weight in zip(items, rarities):
+        for item, weight in zip(items, rarities, strict=False):
             count += weight
             if selection <= count:
                 return item
@@ -178,7 +178,7 @@ class Map:
         else:
             resources = LAND_RESOURCES
         rarities = [r.rarity for r in resources]
-        return self.weight_chooser(resources, rarities)  # type: ignore[return-value]
+        return self.weight_chooser(resources, rarities)
 
     def choose_wealth(self, terrain: Terrain, res: Resource) -> float:
         if terrain.name in WATER_TERRAINS and res.name == "":

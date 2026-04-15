@@ -28,7 +28,9 @@ class Button:
 
     def draw(self, surface: pygame.Surface, outline: tuple[int, int, int] | None = None) -> None:
         if outline:
-            pygame.draw.rect(surface, outline, (self.x - 2, self.y - 2, self.width + 4, self.height + 4))
+            pygame.draw.rect(
+                surface, outline, (self.x - 2, self.y - 2, self.width + 4, self.height + 4)
+            )
         pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
         if self.text:
             font = pygame.font.Font(MAIN_FONT[0], MAIN_FONT[1])

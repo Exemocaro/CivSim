@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import logging
 
+from civsim.engine.game_loop import GameLoop
 from civsim.settings import DEBUG, MAP_SIZES
 from civsim.world.map import Map
-from civsim.engine.game_loop import GameLoop
 
 
 def main() -> None:

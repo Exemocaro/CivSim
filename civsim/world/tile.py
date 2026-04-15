@@ -325,10 +325,6 @@ class Tile:
         n: Nation = nation  # type: ignore[assignment]
 
         happiness_str = "Happy" if self.is_happy else "Unhappy"
-        improvements_str = (
-            ", ".join(i.name for i in self.improvements) if self.improvements else "None"
-        )
-        buildings_str = ", ".join(b.name for b in self.buildings) if self.buildings else "None"
 
         return [
             f"{n.id} | {n.representation}",
@@ -344,10 +340,10 @@ class Tile:
             f"Value: {round(self.value, 2)}  {happiness_str}",
             self.production_to_string(),
             f"Tax Revenue: {round(self.tax_revenue, 2)}",
-            f"Buildings: {buildings_str}",
-            f"Improvements: {improvements_str}",
+            f"Buildings: {len(self.buildings)}  Improvements: {len(self.improvements)}",
             f"Tech Level: {n.tech_level}",
-            f"Phase: {n.personality.phase}  Wars: {len(n.wars)}",
+            f"Phase: {n.personality.phase}",
+            f"Wars: {', '.join(w[0].name for w in n.wars) if n.wars else 'None'}",
             n.leader.representation,
             n.leader.get_values(),
         ]

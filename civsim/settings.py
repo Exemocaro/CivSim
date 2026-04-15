@@ -17,7 +17,7 @@ FONTS_DIR = _ROOT / "fonts"
 DATA_DIR = _ROOT / "data"
 
 MAIN_FONT = (str(FONTS_DIR / "LEMONMILK-Regular.otf"), 20)
-SMALL_FONT = (str(FONTS_DIR / "LEMONMILK-Regular.otf"), 14)
+SMALL_FONT = (str(FONTS_DIR / "LEMONMILK-Regular.otf"), 16)
 KINGDOM_NAMES_FILE = str(DATA_DIR / "kingdom_names.txt")
 LOG_FILE = str(_ROOT / "logs" / "civsim.log")
 

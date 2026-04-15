@@ -71,10 +71,10 @@ The recommended map size is **small** — larger maps work but run slower. Map s
 
 ## Development
 
-Dev dependencies (ruff, mypy, pre-commit) are installed automatically by `uv sync`. Activate the git hooks once after cloning:
+Dev dependencies (ruff, mypy, prek) are installed automatically by `uv sync`. Activate the git hooks once after cloning:
 
 ```bash
-uv run pre-commit install
+uv run prek install
 ```
 
 After that, ruff (lint + format) and mypy run automatically on every commit.

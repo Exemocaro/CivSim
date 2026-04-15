@@ -55,7 +55,7 @@ class Personality:
 # don't matter — but we pass the base constants for clarity.)
 # ---------------------------------------------------------------------------
 SIMPLE_PERSONALITIES: list[Personality] = [
-    Personality("basic", "peacefully-expanding",   BASE_DEV_COST, BASE_CONQUER_COST),
+    Personality("basic", "peacefully-expanding", BASE_DEV_COST, BASE_CONQUER_COST),
     Personality("basic", "aggressively-expanding", BASE_DEV_COST, BASE_CONQUER_COST),
-    Personality("basic", "developing",             BASE_DEV_COST, BASE_CONQUER_COST),
+    Personality("basic", "developing", BASE_DEV_COST, BASE_CONQUER_COST),
 ]

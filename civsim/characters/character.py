@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-import random
 import logging
+import random
 
+from civsim.names.names import name_gen
 from civsim.settings import (
     AGE_PROBABILITIES_PAR,
     BASE_DEATH_VALUE,
     VITALITY_DEATH_BONUS,
     VITALITY_DEATH_PENALTY,
 )
-from civsim.names.names import name_gen
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +32,9 @@ class Character:
         self.name = name
         self.age = age
         self.gender = gender
-        self.martial = martial          # combat bonus when attacking/defending
-        self.prosperity = prosperity    # reduces resource rot, boosts money income
-        self.vitality = vitality        # influences lifespan
+        self.martial = martial  # combat bonus when attacking/defending
+        self.prosperity = prosperity  # reduces resource rot, boosts money income
+        self.vitality = vitality  # influences lifespan
         self.probability_of_dying: int = 0
 
         self.title = "King" if gender == "m" else "Queen"
@@ -47,7 +47,9 @@ class Character:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def get_character(name: str, age: int, gender: str, martial: int, prosperity: int, vitality: int) -> Character:
+    def get_character(
+        name: str, age: int, gender: str, martial: int, prosperity: int, vitality: int
+    ) -> Character:
         """Create a character with explicit stats."""
         return Character(name, age, gender, martial, prosperity, vitality)
 

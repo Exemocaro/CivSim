@@ -351,10 +351,11 @@ class Nation:
         cost = self.personality.influence_cost_to_conquer
         # Road discount: if any adjacent friendly tile has a road, reduce cost
         for n in tile.get_neighbours(tiles, len(tiles[0]), len(tiles)):
-            if self.is_nation_controller(n, tiles_by_nation):
-                if any(imp.name == "road" for imp in n.improvements):
-                    cost *= IMPROVEMENT_ROAD_CONQUER_DISCOUNT
-                    break
+            if self.is_nation_controller(n, tiles_by_nation) and any(
+                imp.name == "road" for imp in n.improvements
+            ):
+                cost *= IMPROVEMENT_ROAD_CONQUER_DISCOUNT
+                break
         self.influence -= cost
 
         self._update_neighbours_after_conquest(tile, tiles, tiles_by_nation)
@@ -497,8 +498,8 @@ class Nation:
         enemy_tiles = self.get_enemy_neighbours(tiles, tiles_by_nation)
         if not enemy_tiles:
             # No adjacent enemy tiles — make peace with everyone
-            for war in list(self.wars):
-                self.end_war(war[0])
+            for _war in list(self.wars):
+                self.end_war(_war[0])
             return
 
         # Choose target: prioritise enclaves, otherwise pick the tile closest
@@ -545,13 +546,15 @@ class Nation:
         self, tiles_by_nation: TilesByNation, controlled_tiles: list[Tile]
     ) -> None:
         self.turns_with_no_change_in_attack_center += 1
-        if random.randint(1, 100) <= self.turns_with_no_change_in_attack_center * 2 or (
-            self.attack_center
-            and not self.is_nation_controller(self.attack_center, tiles_by_nation)
-        ):
-            if controlled_tiles:
-                self.attack_center = random.choice(controlled_tiles)
-                self.turns_with_no_change_in_attack_center = 0
+        if (
+            random.randint(1, 100) <= self.turns_with_no_change_in_attack_center * 2
+            or (
+                self.attack_center
+                and not self.is_nation_controller(self.attack_center, tiles_by_nation)
+            )
+        ) and controlled_tiles:
+            self.attack_center = random.choice(controlled_tiles)
+            self.turns_with_no_change_in_attack_center = 0
 
     # ------------------------------------------------------------------
     # Diplomacy / stance
@@ -587,28 +590,28 @@ class Nation:
             self.money > WAR_COST
             and money_dif > WAR_MAINTENANCE_RANGE[0]
             and num_wars < self.max_wars
+            and random.randint(1, 100) <= PROBABILITY_WAR_PER_TURN
         ):
-            if random.randint(1, 100) <= PROBABILITY_WAR_PER_TURN:
-                for tile in controlled_tiles:
-                    for n in tile.get_neighbours(tiles, len(tiles[0]), len(tiles)):
-                        neighbour_id = self.get_controller_id(n, tiles_by_nation)
-                        if neighbour_id not in (self.id, 0) and len(self.wars) < self.max_wars:
-                            for nation in nations:
-                                if nation.id == neighbour_id:
-                                    # Avoid declaring war on the same nation twice
-                                    if not any(w[0].id == nation.id for w in self.wars):
-                                        self.wars.append(
-                                            [nation, self.return_new_war_budget(money_dif, nation)]
-                                        )
-                                        nation.wars.append(
-                                            [self, nation.return_new_war_budget(money_dif, self)]
-                                        )
-                                        new_war = True
-                                    break
-                        if new_war:
-                            break
+            for tile in controlled_tiles:
+                for n in tile.get_neighbours(tiles, len(tiles[0]), len(tiles)):
+                    neighbour_id = self.get_controller_id(n, tiles_by_nation)
+                    if neighbour_id not in (self.id, 0) and len(self.wars) < self.max_wars:
+                        for nation in nations:
+                            if nation.id == neighbour_id:
+                                # Avoid declaring war on the same nation twice
+                                if not any(w[0].id == nation.id for w in self.wars):
+                                    self.wars.append(
+                                        [nation, self.return_new_war_budget(money_dif, nation)]
+                                    )
+                                    nation.wars.append(
+                                        [self, nation.return_new_war_budget(money_dif, self)]
+                                    )
+                                    new_war = True
+                                break
                     if new_war:
                         break
+                if new_war:
+                    break
 
         if num_wars > 0 and not new_war:
             r = random.randint(1, 100)
@@ -763,9 +766,11 @@ class Nation:
     def update_personality(self) -> None:
         if self.turns_no_expand > TURNS_TO_EXPAND:
             self.personality.phase = "peacefully-expanding"
-        if self.personality.phase != "aggressively-expanding":
-            if random.randint(0, 100) < PROBABILITY_AGGRESSIVE_EXPANSION:
-                self.personality.phase = "aggressively-expanding"
+        if (
+            self.personality.phase != "aggressively-expanding"
+            and random.randint(0, 100) < PROBABILITY_AGGRESSIVE_EXPANSION
+        ):
+            self.personality.phase = "aggressively-expanding"
         self.personality.update_values()
 
     def update_size(self, controlled_tiles: list[Tile]) -> None:
@@ -890,7 +895,8 @@ class Nation:
         """
         cap = MAX_NATION_COLOR_VALUE
         c = (random.randint(0, cap), random.randint(0, cap), random.randint(0, cap))
-        while len({c[0], c[1], c[2]}) < 2:  # avoid all-same-channel colours
+        # Reroll until channels differ enough to avoid grayish/white-looking colours.
+        while max(c) - min(c) < 80:
             c = (random.randint(0, cap), random.randint(0, cap), random.randint(0, cap))
         return c
 

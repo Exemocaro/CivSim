@@ -181,7 +181,7 @@ class GameLoop:
     def _spawn_nations(self) -> None:
         logger.info("Spawning %d nations...", self.num_players)
         margin = NATION_SPAWN_BORDER_MARGIN
-        for i in range(self.num_players):
+        for _i in range(self.num_players):
             # Find a valid starting tile
             nation_id = len(self.nations)
             attempts = 0

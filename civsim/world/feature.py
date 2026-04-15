@@ -15,7 +15,7 @@ class Feature:
         def_bonus: int,
     ) -> None:
         self.name = name
-        self.rarity = rarity       # 0 means the feature is not randomly placed during world gen
+        self.rarity = rarity  # 0 means the feature is not randomly placed during world gen
         self.res_bonus = res_bonus  # percentage multiplier on the tile's primary resource
         self.wel_bonus = wel_bonus
         self.life_bonus = life_bonus
@@ -34,23 +34,23 @@ class Feature:
 # Special features — rarity=0 means they are placed by world-gen code directly,
 # not drawn from the random feature pool.
 # ---------------------------------------------------------------------------
-RIVER = Feature("river",      0, 10, 0, 1, [1, 0, 0, 0, 0], 1)
-HILLS = Feature("hills",      0, 10, 0, 0, [1, 0, 0, 0, 0], 1)
-FOREST = Feature("forest",    0, 10, 0, 0, [0, 1, 0, 0, 0], 0)
+RIVER = Feature("river", 0, 10, 0, 1, [1, 0, 0, 0, 0], 1)
+HILLS = Feature("hills", 0, 10, 0, 0, [1, 0, 0, 0, 0], 1)
+FOREST = Feature("forest", 0, 10, 0, 0, [0, 1, 0, 0, 0], 0)
 BIG_FOREST = Feature("big forest", 1, 1, 0, 0, [0, 2, 0, 0, 0], 1)
 
 # ---------------------------------------------------------------------------
 # Land features — drawn from this pool during world generation.
 # ---------------------------------------------------------------------------
 LAND_FEATURES: list[Feature] = [
-    Feature("small caves",    3, 1,  0, 0, [0, 0, 0, 1, 0], 0),
-    Feature("big caves",      1, 10, 0, 0, [0, 0, 0, 2, 1], 0),
+    Feature("small caves", 3, 1, 0, 0, [0, 0, 0, 1, 0], 0),
+    Feature("big caves", 1, 10, 0, 0, [0, 0, 0, 2, 1], 0),
     Feature("gold-rich caves", 1, 1, 0, 0, [0, 0, 0, 0, 2], 0),
-    Feature("valleys",        3, 1,  0, 1, [1, 0, 1, 0, 0], 0),
-    Feature("cliffs",         3, 1,  0, 0, [0, 0, 1, 0, 0], 1),
-    Feature("small lakes",    3, 10, 0, 1, [1, 0, 0, 0, 0], 0),
-    Feature("mounds",         6, 1,  0, 0, [0, 0, 1, 0, 0], 0),
-    Feature("canyon",         1, 1,  1, 0, [0, 0, 1, 0, 0], 1),
+    Feature("valleys", 3, 1, 0, 1, [1, 0, 1, 0, 0], 0),
+    Feature("cliffs", 3, 1, 0, 0, [0, 0, 1, 0, 0], 1),
+    Feature("small lakes", 3, 10, 0, 1, [1, 0, 0, 0, 0], 0),
+    Feature("mounds", 6, 1, 0, 0, [0, 0, 1, 0, 0], 0),
+    Feature("canyon", 1, 1, 1, 0, [0, 0, 1, 0, 0], 1),
     BIG_FOREST,
 ]
 
@@ -58,6 +58,6 @@ LAND_FEATURES: list[Feature] = [
 # Water features — drawn for coast tiles.
 # ---------------------------------------------------------------------------
 WATER_FEATURES: list[Feature] = [
-    Feature("coral reef",  3, 1, 0, 0, [1, 0, 0, 0, 0], 0),
+    Feature("coral reef", 3, 1, 0, 0, [1, 0, 0, 0, 0], 0),
     Feature("deep trench", 3, 1, 0, 0, [1, 0, 0, 0, 0], 0),
 ]

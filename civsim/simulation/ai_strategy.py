@@ -27,8 +27,12 @@ from civsim.settings import (
 from civsim.world.terrain import UNCONTROLLABLE_TERRAINS
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from civsim.simulation.nation import Nation
     from civsim.world.tile import Tile
+
+    StrategyFn = Callable[..., list[Tile]]
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +146,7 @@ def scored_strategy(
 # Strategy registry — keyed by personality name.
 # Add new strategies here to extend AI behaviour without touching Nation.
 # ---------------------------------------------------------------------------
-STRATEGY_REGISTRY: dict[str, object] = {
+STRATEGY_REGISTRY: dict[str, StrategyFn] = {
     "basic": scored_strategy,
 }
 
@@ -162,4 +166,4 @@ def get_dev_tiles(
             nation.id,
         )
         strategy = scored_strategy
-    return strategy(nation, tiles, tiles_by_nation, controlled_tiles)  # type: ignore[call-arg]
+    return strategy(nation, tiles, tiles_by_nation, controlled_tiles)

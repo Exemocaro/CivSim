@@ -17,7 +17,7 @@ civsim = "civsim.__main__:main"
 
 [dependency-groups]
 dev = [
-    "pre-commit>=3.7",
+    "prek>=0.3.9",
     "mypy>=1.10",
 ]
 

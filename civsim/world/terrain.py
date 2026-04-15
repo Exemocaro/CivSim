@@ -6,7 +6,9 @@ from civsim.world.feature import Feature
 
 
 class Terrain:
-    def __init__(self, name: str, color: tuple[int, int, int], features: list[Feature], height: float) -> None:
+    def __init__(
+        self, name: str, color: tuple[int, int, int], features: list[Feature], height: float
+    ) -> None:
         self.name = name
         self.color = color
         self.features = features
@@ -32,28 +34,28 @@ class Terrain:
 # Terrain colour lookup  (RGB)
 # ---------------------------------------------------------------------------
 NAME_COLOR_PAIRS: dict[str, tuple[int, int, int]] = {
-    "Plains":    (50,  205, 50),
+    "Plains": (50, 205, 50),
     "Grassland": (144, 238, 144),
-    "Mountain":  (230, 230, 250),
-    "Desert":    (255, 255, 0),
-    "Ocean":     (0,   0,   128),
-    "Coast":     (0,   0,   255),
-    "Ice":       (255, 255, 255),
-    "Tundra":    (255, 160, 122),
-    "Highland":  (210, 180, 140),
+    "Mountain": (230, 230, 250),
+    "Desert": (255, 255, 0),
+    "Ocean": (0, 0, 128),
+    "Coast": (0, 0, 255),
+    "Ice": (255, 255, 255),
+    "Tundra": (255, 160, 122),
+    "Highland": (210, 180, 140),
 }
 
 # Life-rating ranges per terrain (min, max)
 NAME_LIFERATING_PAIRS: dict[str, tuple[int, int]] = {
-    "Plains":    (5, 9),
+    "Plains": (5, 9),
     "Grassland": (5, 9),
-    "Mountain":  (0, 0),
-    "Desert":    (0, 0),
-    "Ocean":     (0, 0),
-    "Coast":     (0, 0),
-    "Ice":       (0, 0),
-    "Tundra":    (1, 4),
-    "Highland":  (4, 8),
+    "Mountain": (0, 0),
+    "Desert": (0, 0),
+    "Ocean": (0, 0),
+    "Coast": (0, 0),
+    "Ice": (0, 0),
+    "Tundra": (1, 4),
+    "Highland": (4, 8),
 }
 
 # ---------------------------------------------------------------------------

@@ -53,15 +53,10 @@ class Renderer:
         self.selected_nation_id: int = -1
 
         # Right-panel text layout
-        self.text_x = width + 30
-        self.text_top_y1 = 90
-        self.text_top_y2 = self.text_top_y1 + 35
-        self.text_bottom_y1 = height - self.text_top_y1 - 35
-        self.text_bottom_y2 = height - self.text_top_y1
-        self.text_init = -280
-        self.text_dif = 35
+        self.text_x = width + 14
+        self.text_top_margin = 14
 
-        self.texts: list[str] = ["Welcome to CivSim!"] + [""] * 17
+        self.texts: list[str] = ["Welcome to CivSim!"] + [""] * 19
 
         self._draw_modes = {
             MODE_POLITICAL: self.draw_map_political,
@@ -127,13 +122,12 @@ class Renderer:
             for x, tile in enumerate(row):
                 terrain_color = tile.terrain.color
                 nation = self.nations[self.tiles_by_nation[tile.coords]]
-                if self.selected_nation_id == nation.id:
-                    nc = (255, 255, 255)
-                else:
-                    nc = nation.color
+                nc = (255, 255, 255) if self.selected_nation_id == nation.id else nation.color
 
                 if nation.id != 0:
-                    color = self.blend_colors((*nc, self.political_alpha), terrain_color)
+                    color = self.blend_colors(
+                        (nc[0], nc[1], nc[2], self.political_alpha), terrain_color
+                    )
                 else:
                     color = terrain_color
 
@@ -203,19 +197,15 @@ class Renderer:
         self.screen.blit(rendered, (x, y))
 
     def show_texts(self) -> None:
+        y = self.text_top_margin
         for i, text in enumerate(self.texts):
-            rendered = self.font.render(text, True, BLACK)
-            if i == 0:
-                y = self.text_top_y1
-            elif i == 1:
-                y = self.text_top_y2
-            elif i == len(self.texts) - 2:
-                y = self.text_bottom_y1
-            elif i == len(self.texts) - 1:
-                y = self.text_bottom_y2
-            else:
-                y = self.height // 2 + (self.text_init + self.text_dif * i)
+            if not text:
+                y += self.small_font.get_linesize() // 2
+                continue
+            font = self.font if i == 0 else self.small_font
+            rendered = font.render(text, True, BLACK)
             self.screen.blit(rendered, (self.text_x, y))
+            y += font.get_linesize() + 2
 
     # ------------------------------------------------------------------
     # Frame
